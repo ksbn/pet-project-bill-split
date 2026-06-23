@@ -1,21 +1,18 @@
 # Run with: docker compose up -d
-# Stop with: docker compose down
-# Wipe data:  docker compose down -v
-
 services:
   postgres:
     image: postgres:17-alpine
-    container_name: split-app-db
+    container_name: split-it-db
     environment:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
-      POSTGRES_DB: appdb
+      POSTGRES_DB: splitit
     ports:
-      - "5432:5432"
+      - '5432:5432'
     volumes:
       - pgdata:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      test: ['CMD-SHELL', 'pg_isready -U postgres']
       interval: 5s
       timeout: 5s
       retries: 5
