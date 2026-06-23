@@ -1,8 +1,8 @@
 {
-  "name": "split-app",
+  "name": "split-it",
   "version": "0.1.0",
   "private": true,
-  "description": "split-app — MigraCode fullstack project",
+  "description": "Split-It — bill splitter fullstack project",
   "scripts": {
     "dev": "concurrently \"npm run dev --prefix frontend\" \"npm run dev --prefix backend\"",
     "build": "npm run build --prefix frontend && npm run build --prefix backend",
@@ -15,9 +15,5 @@
     "concurrently": "^10.0.3",
     "oxfmt": "^0.54.0",
     "oxlint": "^1.69.0"
-  },
-  "volta": {
-    "node": "24.16.0",
-    "npm": "11.13.0"
   }
 }
