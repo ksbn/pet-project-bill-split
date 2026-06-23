@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { UserCard } from "../components/UserCard";
+import UserCard from "../components/UserCard";
 import styles from "./HomePage.module.css";
 
 // Put page-level components in src/pages/.
@@ -18,7 +18,7 @@ export function HomePage() {
 
   return (
     <div className={styles.container}>
-      <h1>🚀 MigraCode Fullstack Starter</h1>
+      <h1>🚀 Split-It — bill splitter fullstack project</h1>
       <p>
         Counter: <strong>{count}</strong>
         <button className={styles.button} onClick={() => setCount((c) => c + 1)}>
