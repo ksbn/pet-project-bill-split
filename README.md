@@ -95,34 +95,34 @@ npm run migrate:create -- add-posts-table
 This creates a file like `backend/migrations/1749823642869_add-posts-table.js` (the number is a timestamp). Open it — it looks like this:
 
 ```js
-export const shorthands = undefined
+export const shorthands = undefined;
 
 export const up = (pgm) => {
   // TODO: write your changes here
-}
+};
 
 export const down = (pgm) => {
   // TODO: write how to undo the changes here
-}
+};
 ```
 
 **2. Fill in `up` and `down`:**
 
 ```js
-export const shorthands = undefined
+export const shorthands = undefined;
 
 export const up = (pgm) => {
-  pgm.createTable('posts', {
-    id: { type: 'serial', primaryKey: true },
-    title: { type: 'text', notNull: true },
-    body: { type: 'text', notNull: true },
-    created_at: { type: 'timestamp', default: pgm.func('NOW()'), notNull: true },
-  })
-}
+  pgm.createTable("posts", {
+    id: { type: "serial", primaryKey: true },
+    title: { type: "text", notNull: true },
+    body: { type: "text", notNull: true },
+    created_at: { type: "timestamp", default: pgm.func("NOW()"), notNull: true },
+  });
+};
 
 export const down = (pgm) => {
-  pgm.dropTable('posts')
-}
+  pgm.dropTable("posts");
+};
 ```
 
 - `up` — what to do when migrating forward (create table, add column, etc.)
@@ -168,10 +168,10 @@ frontend/src/
 Import and use them in your component:
 
 ```jsx
-import styles from './UserCard.module.css'
+import styles from "./UserCard.module.css";
 
 export function UserCard({ name }) {
-  return <div className={styles.card}>{name}</div>
+  return <div className={styles.card}>{name}</div>;
 }
 ```
 

@@ -1,20 +1,20 @@
-import { useState, useEffect } from 'react'
-import { UserCard } from '../components/UserCard'
-import styles from './HomePage.module.css'
+import { useState, useEffect } from "react";
+import { UserCard } from "../components/UserCard";
+import styles from "./HomePage.module.css";
 
 // Put page-level components in src/pages/.
 // Each page is composed from smaller components in src/components/.
 export function HomePage() {
-  const [count, setCount] = useState(0)
-  const [users, setUsers] = useState([])
+  const [count, setCount] = useState(0);
+  const [users, setUsers] = useState([]);
 
   // Example: fetch data from the backend on mount
   useEffect(() => {
-    fetch('/api/users')
+    fetch("/api/users")
       .then((res) => res.json())
       .then(setUsers)
-      .catch(console.error)
-  }, [])
+      .catch(console.error);
+  }, []);
 
   return (
     <div className={styles.container}>
@@ -31,5 +31,5 @@ export function HomePage() {
         <UserCard key={user.id} name={user.name} role={user.role} />
       ))}
     </div>
-  )
+  );
 }

@@ -1,20 +1,20 @@
-import { defineConfig } from 'vite'
-import react from '@vitejs/plugin-react'
+import { defineConfig } from "vite";
+import react from "@vitejs/plugin-react";
 
 // Dev proxy: forwards /api/* requests to the backend.
 // In production this proxy is not used — configure your hosting to route /api/* to your backend,
 // or set BACKEND_URL to point to a non-local backend (e.g. a staging server).
-const BACKEND_URL = process.env.BACKEND_URL ?? 'http://localhost:3000'
+const BACKEND_URL = process.env.BACKEND_URL ?? "http://localhost:3000";
 
 // https://vite.dev/config/
 export default defineConfig({
   plugins: [react()],
   server: {
     proxy: {
-      '/api': {
+      "/api": {
         target: BACKEND_URL,
         changeOrigin: true,
       },
     },
   },
-})
+});
