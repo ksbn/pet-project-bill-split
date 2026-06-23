@@ -1,6 +1,10 @@
 node_modules/
+dist/
+build/
 .vite/
 .env
 .env.local
+**/.env
+**/.env.local
 .DS_Store
 Thumbs.db
