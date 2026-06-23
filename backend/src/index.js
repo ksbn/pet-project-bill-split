@@ -1,5 +1,6 @@
 import express from "express";
 import userRoutes from "./routes/users.js";
+import { groupRoutes } from "./routes/groups.js";
 import { pool } from "./db/pool.js";
 
 const app = express();
@@ -24,6 +25,7 @@ app.use("/api", (_req, res, next) => {
 // ── Routes ──────────────────────────────────────────────────────────────────
 // Mount route files here. Keep index.ts clean – one line per feature.
 app.use("/api/users", userRoutes);
+app.use("/api/groups", groupRoutes);
 
 app.get("/api/health", (_req, res) => {
   res.json({ status: "ok", timestamp: new Date().toISOString() });

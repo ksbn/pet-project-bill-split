@@ -1,27 +1,27 @@
-import { Router } from "express";
-import { getAllUsers, getUserById } from "../services/users.js";
+import { Router } from 'express'
+import { createGroup, getGroupByInviteCode } from '../services/groups.js'
 
-// Router files only handle HTTP concerns (parsing, status codes, responses).
-// All business logic lives in services/.
-export const userRoutes = Router();
+export const groupRoutes = Router()
 
-userRoutes.get("/", async (_req, res) => {
+groupRoutes.post('/', async (req, res) => {
   try {
-    const users = await getAllUsers();
-    res.json(users);
+    const { name } = req.body
+    if (!name) return res.status(400).json({ error: 'name is required' })
+    const group = await createGroup(name)
+    res.status(201).json(group)
   } catch (err) {
-    console.error(err);
-    res.status(500).json({ error: "Failed to fetch users" });
+    console.error(err)
+    res.status(500).json({ error: 'Failed to create group' })
   }
-});
+})
 
-userRoutes.get("/:id", async (req, res) => {
+groupRoutes.get('/:inviteCode', async (req, res) => {
   try {
-    const user = await getUserById(Number(req.params.id));
-    if (!user) return res.status(404).json({ error: "User not found" });
-    res.json(user);
+    const group = await getGroupByInviteCode(req.params.inviteCode)
+    if (!group) return res.status(404).json({ error: 'Group not found' })
+    res.json(group)
   } catch (err) {
-    console.error(err);
-    res.status(500).json({ error: "Failed to fetch user" });
+    console.error(err)
+    res.status(500).json({ error: 'Failed to fetch group' })
   }
-});
+})
