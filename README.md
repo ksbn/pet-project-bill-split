@@ -7,7 +7,7 @@
 
 </div>
 
-# split-app
+# split-it
 
 A MigraCode fullstack project built with:
 
@@ -18,40 +18,6 @@ A MigraCode fullstack project built with:
 - **Linting:** oxlint
 - **Formatting:** oxfmt
 - **CI:** GitHub Actions
-
-## Project structure
-
-### Frontend
-
-```
-frontend/src/
-├── components/
-│   └── UserCard.jsx      ← reusable UI component
-├── pages/
-│   └── HomePage.jsx      ← page-level component
-├── test/
-│   └── UserCard.test.jsx
-└── main.jsx
-```
-
-### Backend
-
-```
-backend/
-├── migrations/
-│   └── 1_initial-schema.js  ← versioned DB migrations (node-pg-migrate)
-└── src/
-    ├── routes/
-    │   └── users.js       ← HTTP layer (parse req, send res)
-    ├── services/
-    │   └── users.js       ← business logic & data access
-    ├── db/
-    │   └── pool.js        ← PostgreSQL connection pool
-    ├── test/
-    │   ├── users.service.test.js
-    │   └── health.test.js
-    └── index.js           ← app entry point & server start
-```
 
 ## Getting started
 
@@ -157,13 +123,6 @@ docker compose down            # stop PostgreSQL (keeps data)
 ## Styling (CSS Modules)
 
 Each component has its own `.module.css` file next to it. Styles are **scoped** — a `.card` class in `UserCard.module.css` will never clash with a `.card` class in another component.
-
-```
-frontend/src/
-├── components/
-│   ├── UserCard.jsx
-│   └── UserCard.module.css    ← scoped styles for UserCard only
-```
 
 Import and use them in your component:
 
