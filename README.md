@@ -150,7 +150,7 @@ cd backend && npm run migrate  # recreate all tables and seed data
 
 ```bash
 npm run migrate:down           # roll back the last migration (run from backend/)
-docker exec -it split-app-db psql -U postgres -d appdb   # open a psql shell
+docker exec -it split-it-db psql -U postgres -d splitit  # open a psql shell
 docker compose down            # stop PostgreSQL (keeps data)
 ```
 
