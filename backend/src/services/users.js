@@ -1,4 +1,4 @@
-/** add a user to a group */
+/* add a user to a group */
 async function addUserToGroup({ group_id, name, email }) {
   const result = await db.query(
     `INSERT INTO users (group_id, name, email)
@@ -9,7 +9,7 @@ async function addUserToGroup({ group_id, name, email }) {
   return result.rows[0];
 }
 
-/** fetch users by group */
+/* fetch users by group */
 async function getUsersByGroup(group_id) {
   const result = await db.query(
     `SELECT id, group_id, name, email
