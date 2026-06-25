@@ -1,5 +1,5 @@
 import { Router } from "express";
-import usersService from "../services/users";
+import usersService from "../services/users.js";
 
 const router = Router({ mergeParams: true });
 
@@ -16,7 +16,7 @@ router.post("/", async (req, res) => {
     const newUser = await usersService.addUserToGroup({
       group_id,
       name,
-      emial,
+      email,
     });
     return res.status(201).json(newUser);
   } catch (error) {
