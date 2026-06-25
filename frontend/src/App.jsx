@@ -1,7 +1,16 @@
+import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { HomePage } from "./pages/HomePage";
-
-// App is the root component. It decides what to render.
-// For routing, consider adding TanStack Router or React Router.
+import GroupPage from "./pages/GroupPage";
+import JoinPage from "./pages/JoinPage";
+ 
 export default function App() {
-  return <HomePage />;
+  return (
+    <BrowserRouter>
+      <Routes>
+        <Route path="/" element={<HomePage />} />
+        <Route path="/groups/:groupId" element={<GroupPage />} />
+        <Route path="/join/:inviteCode" element={<JoinPage />} />
+      </Routes>
+    </BrowserRouter>
+  );
 }
