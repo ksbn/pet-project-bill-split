@@ -17,3 +17,11 @@ export async function getGroupByInviteCode(invite_code) {
   )
   return rows[0] ?? null
 }
+
+export async function getGroupById(id) {
+  const { rows } = await pool.query(
+    'SELECT * FROM groups WHERE id = $1',
+    [id]
+  )
+  return rows[0] ?? null
+}
