@@ -39,11 +39,11 @@ export async function addUserToGroup(groupId, userData) {
 }
 
 export async function joinGroupByInviteCode(inviteCode, userData) {
-  const res = await fetch(`${BASE}/groups/${inviteCode}/join`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(userData),
-  });
-  if (!res.ok) throw new Error("Failed to join group");
-  return res.json();
+  // Step 1: get the group by invite code to retrieve its ID
+  const group = await getGroupByInviteCode(inviteCode);
+
+  // Step 2: add the user to that group using the existing endpoint
+  const user = await addUserToGroup(group.id, userData);
+
+  return { ...user, group_id: group.id };
 }
