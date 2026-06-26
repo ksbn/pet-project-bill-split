@@ -47,3 +47,19 @@ export async function joinGroupByInviteCode(inviteCode, userData) {
 
   return { ...user, group_id: group.id };
 }
+
+export async function addExpense(groupId, expenseData) {
+  const res = await fetch(`${BASE}/groups/${groupId}/expenses`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(expenseData),
+  })
+  if (!res.ok) throw new Error('Failed to add expense')
+  return res.json()
+}
+
+export async function getExpenses(groupId) {
+  const res = await fetch(`${BASE}/groups/${groupId}/expenses`)
+  if (!res.ok) throw new Error('Failed to fetch expenses')
+  return res.json()
+}
