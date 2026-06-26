@@ -1,7 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 
-// When testing services that use the DB, we mock the pool
-// so tests run without a real database connection.
 vi.mock("../db/pool.js", () => ({
   pool: {
     query: vi.fn(),
@@ -9,36 +7,33 @@ vi.mock("../db/pool.js", () => ({
 }));
 
 import { pool } from "../db/pool.js";
-import { getAllUsers, getUserById } from "../services/users.js";
+import { createGroup, getGroupByInviteCode } from '../services/groups.js'
 
-const MOCK_USERS = [
-  { id: 1, name: "Alice García", role: "Frontend Developer" },
-  { id: 2, name: "Bob Mwangi", role: "Backend Developer" },
-];
+describe('groups service (with mocked DB)', () => {
+  beforeEach(() => vi.clearAllMocks())
 
-describe("users service (with mocked DB)", () => {
-  beforeEach(() => vi.clearAllMocks());
+  it('createGroup returns a new group with invite code', async () => {
+    const mockGroup = { id: 1, name: 'Weekend Trip', invite_code: 'abc12345', created_at: new Date() }
+    pool.query.mockResolvedValueOnce({ rows: [mockGroup] })
 
-  it("getAllUsers returns rows from the database", async () => {
-    pool.query.mockResolvedValueOnce({ rows: MOCK_USERS });
+    const group = await createGroup('Weekend Trip')
+    expect(group.name).toBe('Weekend Trip')
+    expect(group.invite_code).toBe('abc12345')
+  })
 
-    const users = await getAllUsers();
-    expect(users).toHaveLength(2);
-    expect(users[0].name).toBe("Alice García");
-  });
+  it('getGroupByInviteCode returns the correct group', async () => {
+    const mockGroup = { id: 1, name: 'Weekend Trip', invite_code: 'abc12345' }
+    pool.query.mockResolvedValueOnce({ rows: [mockGroup] })
 
-  it("getUserById returns the correct user", async () => {
-    pool.query.mockResolvedValueOnce({ rows: [MOCK_USERS[0]] });
+    const group = await getGroupByInviteCode('abc12345')
+    expect(group?.id).toBe(1)
+    expect(group?.invite_code).toBe('abc12345')
+  })
 
-    const user = await getUserById(1);
-    expect(user?.id).toBe(1);
-    expect(user?.name).toBe("Alice García");
-  });
+  it('getGroupByInviteCode returns null when not found', async () => {
+    pool.query.mockResolvedValueOnce({ rows: [] })
 
-  it("getUserById returns null when not found", async () => {
-    pool.query.mockResolvedValueOnce({ rows: [] });
-
-    const user = await getUserById(999);
-    expect(user).toBeNull();
-  });
-});
+    const group = await getGroupByInviteCode('notexist')
+    expect(group).toBeNull()
+  })
+})
