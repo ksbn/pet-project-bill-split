@@ -1,5 +1,5 @@
 import { Router } from "express";
-import usersService from "../services/users.js";
+import { addUserToGroup, getUsersByGroup } from "../services/users.js";
 
 const router = Router({ mergeParams: true });
 
@@ -13,7 +13,7 @@ router.post("/", async (req, res) => {
       return res.status(400).json({ error: "Name is required" });
     }
 
-    const newUser = await usersService.addUserToGroup({
+    const newUser = await addUserToGroup({
       group_id,
       name,
       email,
@@ -29,7 +29,7 @@ router.post("/", async (req, res) => {
 router.get("/", async (req, res) => {
   try {
     const { id: group_id } = req.params;
-    const users = await usersService.getUsersByGroup(group_id);
+    const users = await getUsersByGroup(group_id);
     return res.status(200).json(users);
   } catch (error) {
     console.error("Error fetching users:", error);

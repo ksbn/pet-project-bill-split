@@ -23,7 +23,4 @@ async function getUsersByGroup(group_id) {
   return result.rows;
 }
 
-export default {
-  addUserToGroup,
-  getUsersByGroup,
-};
+export { addUserToGroup, getUsersByGroup }
