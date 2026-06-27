@@ -2,6 +2,7 @@ import express from "express";
 import userRoutes from "./routes/users.js";
 import { groupRoutes } from "./routes/groups.js";
 import expenseRoutes from './routes/expenses.js'  
+import settlementRoutes from './routes/settlements.js'
 import { pool } from "./db/pool.js";
 
 const app = express();
@@ -28,6 +29,7 @@ app.use("/api", (_req, res, next) => {
 app.use("/api/groups/:id/users", userRoutes);
 app.use("/api/groups", groupRoutes);
 app.use('/api/groups/:id/expenses', expenseRoutes)
+app.use('/api/groups/:id/settlements', settlementRoutes)
 
 app.get("/api/health", (_req, res) => {
   res.json({ status: "ok", timestamp: new Date().toISOString() });
