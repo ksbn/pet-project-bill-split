@@ -222,9 +222,9 @@ export default function GroupPage() {
        <ul style={{ listStyle: "none", padding: 0 }}>
          {settlements.map((s, i) => (
           <li key={i} style={{ padding: "8px 12px", border: "1px solid #ddd", borderRadius: "6px", marginBottom: "8px" }}>
-            <strong>{s.debtor}</strong>
+            <strong>{s.from}</strong>
             <span style={{ color: "#666" }}> owes </span>
-            <strong>{s.creditor}</strong>
+            <strong>{s.to}</strong>
             <span style={{ marginLeft: "8px", color: "#2a7a2a", fontWeight: "bold" }}>
               €{Number(s.amount).toFixed(2)}
             </span>
