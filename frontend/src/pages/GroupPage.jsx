@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useParams, useLocation } from "react-router-dom";
-import { getGroup, getGroupUsers, addUserToGroup, addExpense, getExpenses } from "../services/api";
+import { getGroup, getGroupUsers, addUserToGroup, addExpense, getExpenses, getSettlements } from "../services/api";
 
 export default function GroupPage() {
   const { groupId } = useParams();
@@ -25,6 +25,7 @@ export default function GroupPage() {
   const [expPaidBy, setExpPaidBy] = useState("");
   const [expSubmitting, setExpSubmitting] = useState(false);
   const [expFormError, setExpFormError] = useState(null);
+  const [settlements, setSettlements] = useState([]);
 
   useEffect(() => {
     if (group) return;
@@ -47,6 +48,12 @@ export default function GroupPage() {
       .then(setExpenses)
       .catch(() => {});
   }, [groupId]);
+
+  useEffect(() => {
+  getSettlements(groupId)
+    .then(setSettlements)
+    .catch(() => {});
+}, [groupId]);
 
   async function handleAddUser(e) {
     e.preventDefault();
@@ -204,6 +211,28 @@ export default function GroupPage() {
           </button>
         </form>
       </section>
-    </div>
+
+      <hr style={{ margin: "1.5rem 0" }} />
+
+    <section>
+       <h2>Settlements</h2>
+       {settlements.length === 0 ? (
+        <p style={{ color: "#888" }}>Everyone is settled up! 🎉</p>
+      ) : (
+       <ul style={{ listStyle: "none", padding: 0 }}>
+         {settlements.map((s, i) => (
+          <li key={i} style={{ padding: "8px 12px", border: "1px solid #ddd", borderRadius: "6px", marginBottom: "8px" }}>
+            <strong>{s.debtor}</strong>
+            <span style={{ color: "#666" }}> owes </span>
+            <strong>{s.creditor}</strong>
+            <span style={{ marginLeft: "8px", color: "#2a7a2a", fontWeight: "bold" }}>
+              €{Number(s.amount).toFixed(2)}
+            </span>
+          </li>
+         ))}
+      </ul>
+      )}
+    </section>
+  </div>
   );
 }
