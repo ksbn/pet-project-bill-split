@@ -63,3 +63,9 @@ export async function getExpenses(groupId) {
   if (!res.ok) throw new Error('Failed to fetch expenses')
   return res.json()
 }
+
+export async function getSettlements(groupId) {
+  const res = await fetch(`${BASE}/groups/${groupId}/settlements`);
+  if (!res.ok) throw new Error("Failed to fetch settlements");
+  return res.json();
+}
