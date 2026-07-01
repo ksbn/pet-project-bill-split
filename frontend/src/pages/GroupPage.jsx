@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useParams, useLocation } from "react-router-dom";
-import { getGroup, getGroupUsers, addUserToGroup, addExpense, getExpenses, getSettlements } from "../services/api";
+import { getGroup, getGroupUsers, addUserToGroup, addExpense, getExpenses, getSettlements, recalculateSplits } from "../services/api";
 
 export default function GroupPage() {
   const { groupId } = useParams();
@@ -9,6 +9,7 @@ export default function GroupPage() {
   const [group, setGroup] = useState(location.state?.group ?? null);
   const [users, setUsers] = useState([]);
   const [expenses, setExpenses] = useState([]);
+  const [settlements, setSettlements] = useState([]);
   const [groupLoading, setGroupLoading] = useState(!group);
   const [usersLoading, setUsersLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -23,9 +24,12 @@ export default function GroupPage() {
   const [expTitle, setExpTitle] = useState("");
   const [expAmount, setExpAmount] = useState("");
   const [expPaidBy, setExpPaidBy] = useState("");
+  const [splitMode, setSplitMode] = useState("even");
+  const [customSplits, setCustomSplits] = useState({});
   const [expSubmitting, setExpSubmitting] = useState(false);
   const [expFormError, setExpFormError] = useState(null);
-  const [settlements, setSettlements] = useState([]);
+
+  const [recalculating, setRecalculating] = useState(false);
 
   useEffect(() => {
     if (group) return;
@@ -78,6 +82,20 @@ export default function GroupPage() {
       setExpFormError("All fields are required.");
       return;
     }
+
+    let splits = null;
+    if (splitMode === "custom") {
+      splits = users.map((u) => ({
+        user_id: u.id,
+        amount: Number(customSplits[u.id] ?? 0),
+      }));
+      const total = splits.reduce((sum, s) => sum + s.amount, 0);
+      if (Math.abs(total - Number(expAmount)) > 0.01) {
+        setExpFormError(`Custom splits must add up to €${expAmount}. Current total: €${total.toFixed(2)}`);
+        return;
+      }
+    }
+
     setExpSubmitting(true);
     setExpFormError(null);
     try {
@@ -85,15 +103,33 @@ export default function GroupPage() {
         title: expTitle.trim(),
         amount: Number(expAmount),
         paid_by: Number(expPaidBy),
+        splits,
       });
       setExpenses((prev) => [newExpense, ...prev]);
       setExpTitle("");
       setExpAmount("");
       setExpPaidBy("");
-    } catch {
-      setExpFormError("Could not add expense. Please try again.");
+      setCustomSplits({});
+      setSplitMode("even");
+
+      getSettlements(groupId).then(setSettlements).catch(() => {});
+    } catch (err) {
+      setExpFormError(err.message || "Could not add expense. Please try again.");
     } finally {
       setExpSubmitting(false);
+    }
+  }
+
+  async function handleRecalculate() {
+    setRecalculating(true);
+    try {
+      await recalculateSplits(groupId);
+      const updated = await getSettlements(groupId);
+      setSettlements(updated);
+    } catch {
+      alert("Could not recalculate splits.");
+    } finally {
+      setRecalculating(false);
     }
   }
 
@@ -205,6 +241,39 @@ export default function GroupPage() {
               ))}
             </select>
           </label>
+
+          <div>
+            <strong>Split:</strong>
+            <label style={{ marginLeft: "12px" }}>
+              <input type="radio" value="even" checked={splitMode === "even"}
+                onChange={() => setSplitMode("even")} /> Even
+            </label>
+            <label style={{ marginLeft: "12px" }}>
+              <input type="radio" value="custom" checked={splitMode === "custom"}
+                onChange={() => setSplitMode("custom")} /> Custom
+            </label>
+          </div>
+
+          {splitMode === "custom" && (
+            <div style={{ background: "#f9f9f9", padding: "12px", borderRadius: "6px" }}>
+              <p style={{ margin: "0 0 8px", fontSize: "0.9em", color: "#666" }}>
+                Enter each person's share (must add up to €{expAmount || 0})
+              </p>
+              {users.map((u) => (
+                <label key={u.id} style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "6px" }}>
+                  <span style={{ minWidth: "100px" }}>{u.name}</span>
+                  <input
+                    type="number"
+                    value={customSplits[u.id] ?? ""}
+                    onChange={(e) => setCustomSplits((prev) => ({ ...prev, [u.id]: e.target.value }))}
+                    placeholder="0"
+                    style={{ padding: "4px 8px", width: "100px" }}
+                  />
+                </label>
+              ))}
+            </div>
+          )}
+
           {expFormError && <p style={{ color: "red", margin: 0 }}>{expFormError}</p>}
           <button type="submit" disabled={expSubmitting} style={{ alignSelf: "flex-start", padding: "8px 20px" }}>
             {expSubmitting ? "Adding…" : "Add Expense"}
@@ -216,6 +285,13 @@ export default function GroupPage() {
 
     <section>
        <h2>Settlements</h2>
+       <button
+          onClick={handleRecalculate}
+          disabled={recalculating}
+          style={{ marginBottom: "1rem", padding: "6px 16px", background: "#f0f0f0", border: "1px solid #ccc", borderRadius: "4px", cursor: "pointer" }}
+        >
+          {recalculating ? "Recalculating…" : "🔄 Recalculate Splits"}
+        </button>
        {settlements.length === 0 ? (
         <p style={{ color: "#888" }}>Everyone is settled up! 🎉</p>
       ) : (
