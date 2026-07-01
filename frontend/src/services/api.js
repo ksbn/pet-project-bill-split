@@ -69,3 +69,11 @@ export async function getSettlements(groupId) {
   if (!res.ok) throw new Error("Failed to fetch settlements");
   return res.json();
 }
+
+export async function recalculateSplits(groupId) {
+  const res = await fetch(`/api/groups/${groupId}/expenses/recalculate`, {
+    method: 'POST',
+  })
+  if (!res.ok) throw new Error('Failed to recalculate splits')
+  return res.json()
+}
