@@ -17,6 +17,7 @@ export default function GroupPage() {
   // member form
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
+  const [revolut, setRevolut] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [formError, setFormError] = useState(null);
 
@@ -65,10 +66,11 @@ export default function GroupPage() {
     setSubmitting(true);
     setFormError(null);
     try {
-      const newUser = await addUserToGroup(groupId, { name: name.trim(), email: email.trim() });
+      const newUser = await addUserToGroup(groupId, { name: name.trim(), email: email.trim(), revolut_link: revolut.trim() || null });
       setUsers((prev) => [...prev, newUser]);
       setName("");
       setEmail("");
+      setRevolut(""); 
     } catch {
       setFormError("Could not add user. Please try again.");
     } finally {
@@ -187,6 +189,14 @@ export default function GroupPage() {
               placeholder="e.g. alice@example.com"
               style={{ display: "block", width: "100%", marginTop: "4px", padding: "6px 8px" }} />
           </label>
+
+          <label>
+            Revolut link <span style={{ color: "#888", fontWeight: "normal" }}>(optional)</span>
+            <input type="url" value={revolut} onChange={(e) => setRevolut(e.target.value)}
+              placeholder="e.g. https://revolut.me/yourname"
+              style={{ display: "block", width: "100%", marginTop: "4px", padding: "6px 8px" }} />
+          </label>
+
           {formError && <p style={{ color: "red", margin: 0 }}>{formError}</p>}
           <button type="submit" disabled={submitting} style={{ alignSelf: "flex-start", padding: "8px 20px" }}>
             {submitting ? "Adding…" : "Add Member"}
@@ -298,17 +308,28 @@ export default function GroupPage() {
        <ul style={{ listStyle: "none", padding: 0 }}>
          {settlements.map((s, i) => (
           <li key={i} style={{ padding: "8px 12px", border: "1px solid #ddd", borderRadius: "6px", marginBottom: "8px" }}>
-            <strong>{s.from}</strong>
+          <div>
+            <strong>{s.from}</strong> 
             <span style={{ color: "#666" }}> owes </span>
             <strong>{s.to}</strong>
-            <span style={{ marginLeft: "8px", color: "#2a7a2a", fontWeight: "bold" }}>
-              €{Number(s.amount).toFixed(2)}
-            </span>
-          </li>
-         ))}
-      </ul>
-      )}
-    </section>
-  </div>
+            <span style={{ color: "#2a7a2a", fontWeight: "bold" }}>€{Number(s.amount).toFixed(2)}</span>
+          </div>  
+
+            {s.revolut_link && (
+              <a 
+                href={s.revolut_link}
+                target="_blank"
+                rel="noopener noreferrer"
+                style={{ marginLeft: "auto", padding: "4px 10px", background: "#0075eb", color: "white", borderRadius: "4px", textDecoration: "none", fontSize: "0.85em" }}
+            >
+              Pay via Revolut
+            </a>
+          )}
+        </li>
+      ))}
+    </ul>
+  )}
+</section>
+</div>
   );
-}
+  }
