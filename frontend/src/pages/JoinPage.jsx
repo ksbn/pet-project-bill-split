@@ -15,6 +15,11 @@ export default function JoinPage() {
   const [formError, setFormError] = useState(null);
 
   useEffect(() => {
+    if (!inviteCode) {
+    setError("Missing invite code.");
+    setLoading(false);
+    return;
+  }
     getGroupByInviteCode(inviteCode)
       .then(setGroup)
       .catch(() => setError("Invalid or expired invite link."))
