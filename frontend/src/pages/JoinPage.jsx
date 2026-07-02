@@ -30,9 +30,14 @@ export default function JoinPage() {
     setSubmitting(true);
     setFormError(null);
     try {
-      await joinGroupByInviteCode(inviteCode, { name: name.trim() });
-      navigate(`/groups/${group.id}`);
+      const res = await joinGroupByInviteCode(inviteCode, {name: name.trim()});
+      const groupId = res?.id || group?.id;
+      if (!groupId) {
+      throw new Error("Missing group ID after joining");
+    }
+      navigate(`/groups/${groupId}`);
     } catch {
+      console.error(err);
       setFormError("Could not join group. Please try again.");
     } finally {
       setSubmitting(false);
