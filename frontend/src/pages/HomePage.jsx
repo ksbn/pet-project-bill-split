@@ -26,23 +26,29 @@ export function HomePage() {
   }
 
   return (
-    <div className={styles.container}>
+    <div className={styles.hero}>
       <h1>🚀 Split-It — bill splitter fullstack project</h1>
+      <p className={styles.subtitle}>
+        Split expenses effortlessly with roommates, friends, and trips.
+      </p>
       {error && <p style={{ color: "red" }}>{error}</p>}
-      <input
-        type="text"
-        placeholder="Group name"
-        value={groupName}
-        onChange={(e) => setGroupName(e.target.value)}
-        style={{ padding: "6px 8px", marginRight: "8px" }}
-      />
-      <button
-        className={styles.button}
-        onClick={handleCreateGroup}
-        disabled={loading}
-      >
-        {loading ? "Creating…" : "Create Group"}
-      </button>
+      <div className={styles.form}>
+       <input
+         type="text"
+         placeholder="Enter a group name"
+         value={groupName}
+         onChange={(e) => setGroupName(e.target.value)}
+         style={{ padding: "6px 8px", marginRight: "8px" }}
+       />
+       <button
+         className={styles.button}
+         onClick={handleCreateGroup}
+         disabled={loading}
+       >
+         {loading ? "Creating…" : "Create Group"}
+       </button>
+      </div>
     </div>
+
   );
 }
