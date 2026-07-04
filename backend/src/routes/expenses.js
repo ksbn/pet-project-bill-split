@@ -1,5 +1,5 @@
 import { Router } from 'express'
-import { addExpense, getExpensesByGroup, recalculateSplits } from '../services/expenses.js'
+import { addExpense, getExpensesByGroup, recalculateSplits, deleteExpense } from '../services/expenses.js'
 
 const router = Router({ mergeParams: true })
 
@@ -50,6 +50,19 @@ router.post('/recalculate', async (req, res) => {
   } catch (err) {
     console.error(err)
     res.status(500).json({ error: 'Failed to recalculate splits' })
+  }
+})
+
+router.delete('/:expenseId', async (req, res) => {
+  try {
+    const result = await deleteExpense(
+      Number(req.params.expenseId),
+      Number(req.params.id)
+    )
+    res.json(result)
+  } catch (err) {
+    console.error(err)
+    res.status(404).json({ error: err.message || 'Failed to delete expense' })
   }
 })
 

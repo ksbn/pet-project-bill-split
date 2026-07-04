@@ -122,3 +122,16 @@ export async function recalculateSplits(group_id) {
     client.release()
   }
 }
+
+export async function deleteExpense(expense_id, group_id) {
+    // verify expense belongs to this group
+    const { rows } = await pool.query(
+      'SELECT id FROM expenses WHERE id = $1 AND group_id = $2',
+      [expense_id, group_id]
+    )
+    if (rows.length === 0) throw new Error('Expense not found')
+
+    // splits deleted automatically via CASCADE
+    await pool.query('DELETE FROM expenses WHERE id = $1', [expense_id])
+    return { deleted: true }
+}

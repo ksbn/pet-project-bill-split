@@ -109,6 +109,15 @@ export async function recalculateSplits(groupId) {
   return res.json()
 }
 
+export async function deleteExpense(groupId, expenseId) {
+  const res = await fetch(`${BASE}/groups/${groupId}/expenses/${expenseId}`, {
+    method: 'DELETE',
+    headers: authHeaders(),
+  })
+  if (!res.ok) throw new Error('Failed to delete expense')
+  return res.json()
+}
+
 // Settlements
 export async function getSettlements(groupId) {
   const res = await fetch(`${BASE}/groups/${groupId}/settlements`, {

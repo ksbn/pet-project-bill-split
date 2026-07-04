@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useParams, useLocation, useNavigate } from "react-router-dom";
-import { getGroup, getGroupUsers, addUserToGroup, addExpense, getExpenses, getSettlements, recalculateSplits } from "../services/api";
+import { getGroup, getGroupUsers, addUserToGroup, addExpense, getExpenses, getSettlements, recalculateSplits, deleteExpense } from "../services/api";
 import { getToken } from "../services/token"
 
 export default function GroupPage() {
@@ -130,6 +130,17 @@ export default function GroupPage() {
     }
   }
 
+  async function handleDeleteExpense(expenseId) {
+  if (!confirm('Delete this expense?')) return
+    try {
+      await deleteExpense(groupId, expenseId)
+      setExpenses((prev) => prev.filter((e) => e.id !== expenseId))
+      getSettlements(groupId).then(setSettlements).catch(() => {})
+    } catch {
+      alert('Could not delete expense.')
+    }
+  }
+
   async function handleRecalculate() {
     setRecalculating(true);
     try {
@@ -223,6 +234,7 @@ export default function GroupPage() {
             const share = users.length > 0 ? (exp.amount / users.length).toFixed(2) : "—";
             return (
               <li key={exp.id} style={{ padding: "8px 12px", border: "1px solid #ddd", borderRadius: "6px", marginBottom: "8px" }}>
+                <div>
                 <strong>{exp.title}</strong> — €{exp.amount}
                 <span style={{ marginLeft: "8px", color: "#666", fontSize: "0.9em" }}>
                   paid by {paidBy?.name ?? "unknown"}
@@ -230,6 +242,13 @@ export default function GroupPage() {
                 <div style={{ fontSize: "0.85em", color: "#888", marginTop: "4px" }}>
                   €{share} per person
                 </div>
+              </div>
+              <button
+        onClick={() => handleDeleteExpense(exp.id)}
+        style={{ padding: "4px 10px", background: "#fee", border: "1px solid #fcc", borderRadius: "4px", cursor: "pointer", color: "#c00", fontSize: "0.85em" }}
+      >
+        Delete
+      </button>
               </li>
             );
           })}
