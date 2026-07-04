@@ -36,13 +36,18 @@ export async function addExpense(group_id, paid_by, title, amount, splits = null
 
     if (users.length === 0) throw new Error('No users in group')
 
-    const share = (Number(amount) / users.length).toFixed(2)
+    const total = Number(amount)
+    const base = Math.floor((total / users.length) * 100) / 100
+    const remainder = Math.round((total - base * users.length) * 100)
 
-    // split for each user
-    for (const user of users) {
+    for (let i = 0; i < users.length; i++) {
+      const share = i === 0
+        ? (base + remainder / 100).toFixed(2)
+        : base.toFixed(2)
+
       await client.query(
         'INSERT INTO expense_splits (expense_id, user_id, amount) VALUES ($1, $2, $3)',
-        [expense.id, user.id, share]
+        [expense.id, users[i].id, share]
       )
     }
   }
@@ -92,15 +97,21 @@ export async function recalculateSplits(group_id) {
       )
 
       // recalculate even split
-      const share = (Number(expense.amount) / users.length).toFixed(2)
+    const total = Number(expense.amount)
+    const base = Math.floor((total / users.length) * 100) / 100
+    const remainder = Math.round((total - base * users.length) * 100)
 
-      for (const user of users) {
-        await client.query(
-          'INSERT INTO expense_splits (expense_id, user_id, amount) VALUES ($1, $2, $3)',
-          [expense.id, user.id, share]
-        )
-      }
+    for (let i = 0; i < users.length; i++) {
+      const share = i === 0
+        ? (base + remainder / 100).toFixed(2)
+        : base.toFixed(2)
+
+      await client.query(
+        'INSERT INTO expense_splits (expense_id, user_id, amount) VALUES ($1, $2, $3)',
+        [expense.id, users[i].id, share]
+      )
     }
+  }
 
     await client.query('COMMIT')
     return { recalculated: expenses.length }
