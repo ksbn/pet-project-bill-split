@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { createGroup } from "../services/api";
 import { getToken } from "../services/token";
+import { clearToken } from "../services/token"
 import styles from "./HomePage.module.css";
 
 // Each page is composed from smaller components in src/components/.
@@ -31,6 +32,11 @@ export function HomePage() {
     }
   }
 
+  function handleLogout() {
+  clearToken()
+  navigate("/login")
+  }
+
   return (
     <div className={styles.container}>
       <h1>🚀 Split-It — bill splitter fullstack project</h1>
@@ -49,6 +55,12 @@ export function HomePage() {
       >
         {loading ? "Creating…" : "Create Group"}
       </button>
+<button
+  onClick={handleLogout}
+  style={{ marginLeft: "8px", padding: "6px 16px" }}
+>
+  Logout
+</button>
     </div>
   );
 }
