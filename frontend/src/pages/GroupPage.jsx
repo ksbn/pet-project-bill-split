@@ -1,10 +1,12 @@
 import { useState, useEffect } from "react";
-import { useParams, useLocation } from "react-router-dom";
+import { useParams, useLocation, useNavigate } from "react-router-dom";
 import { getGroup, getGroupUsers, addUserToGroup, addExpense, getExpenses, getSettlements, recalculateSplits } from "../services/api";
+import { getToken } from "../services/token"
 
 export default function GroupPage() {
   const { groupId } = useParams();
   const location = useLocation();
+  const navigate = useNavigate();
 
   const [group, setGroup] = useState(location.state?.group ?? null);
   const [users, setUsers] = useState([]);
@@ -31,6 +33,12 @@ export default function GroupPage() {
   const [expFormError, setExpFormError] = useState(null);
 
   const [recalculating, setRecalculating] = useState(false);
+
+  useEffect(() => {
+  if (!getToken()) {
+    navigate("/login")
+  }
+}, [navigate])
 
   useEffect(() => {
     if (group) return;

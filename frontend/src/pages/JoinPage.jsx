@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
+import { getToken } from "../services/token";
 import { getGroupByInviteCode, joinGroupByInviteCode } from "../services/api";
 
 export default function JoinPage() {
@@ -13,6 +14,12 @@ export default function JoinPage() {
   const [name, setName] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [formError, setFormError] = useState(null);
+
+  useEffect(() => {
+  if (!getToken()) {
+    navigate("/login")
+  }
+  }, [navigate])
 
   useEffect(() => {
     getGroupByInviteCode(inviteCode)
