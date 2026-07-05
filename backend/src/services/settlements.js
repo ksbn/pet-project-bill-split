@@ -70,3 +70,20 @@ export async function getSettlements(group_id) {
 
   return settlements
 }
+
+export async function confirmSettlement(group_id, from_name, to_name, amount) {
+  const { rows } = await pool.query(
+    `INSERT INTO settlement_confirmations (group_id, from_name, to_name, amount)
+     VALUES ($1, $2, $3, $4) RETURNING *`,
+    [group_id, from_name, to_name, amount]
+  )
+  return rows[0]
+}
+
+export async function getConfirmedSettlements(group_id) {
+  const { rows } = await pool.query(
+    `SELECT * FROM settlement_confirmations WHERE group_id = $1 ORDER BY confirmed_at DESC`,
+    [group_id]
+  )
+  return rows
+}

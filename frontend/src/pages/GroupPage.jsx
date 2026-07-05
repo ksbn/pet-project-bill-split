@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useParams, useLocation, useNavigate } from "react-router-dom";
-import { getGroup, getGroupUsers, addUserToGroup, addExpense, getExpenses, getSettlements, recalculateSplits, deleteExpense } from "../services/api";
+import { getGroup, getGroupUsers, addUserToGroup, addExpense, getExpenses, getSettlements, recalculateSplits, deleteExpense, confirmSettlement, getConfirmedSettlements } from "../services/api";
 import { getToken } from "../services/token"
 
 export default function GroupPage() {
@@ -33,6 +33,7 @@ export default function GroupPage() {
   const [expFormError, setExpFormError] = useState(null);
 
   const [recalculating, setRecalculating] = useState(false);
+  const [confirmed, setConfirmed] = useState([]);
 
   useEffect(() => {
   if (!getToken()) {
@@ -67,6 +68,10 @@ export default function GroupPage() {
     .then(setSettlements)
     .catch(() => {});
 }, [groupId]);
+
+  useEffect(() => {
+  getConfirmedSettlements(groupId).then(setConfirmed).catch(() => {})
+}, [groupId])
 
   async function handleAddUser(e) {
     e.preventDefault();
@@ -153,6 +158,16 @@ export default function GroupPage() {
       setRecalculating(false);
     }
   }
+
+  async function handleConfirmSettlement(s) {
+  if (!confirm(`Mark "${s.from} owes ${s.to} €${s.amount}" as paid?`)) return
+  try {
+    await confirmSettlement(groupId, s.from, s.to, s.amount)
+    setConfirmed((prev) => [...prev, { from_name: s.from, to_name: s.to, amount: s.amount }])
+  } catch {
+    alert('Could not confirm settlement.')
+  }
+}
 
   if (groupLoading) return <p style={{ padding: "2rem" }}>Loading group…</p>;
   if (error) return <p style={{ padding: "2rem", color: "red" }}>{error}</p>;
@@ -333,15 +348,19 @@ export default function GroupPage() {
         <p style={{ color: "#888" }}>Everyone is settled up! 🎉</p>
       ) : (
        <ul style={{ listStyle: "none", padding: 0 }}>
-         {settlements.map((s, i) => (
+         {settlements.map((s, i) => {
+          const isConfirmed = confirmed.some(
+          (c) => c.from_name === s.from && c.to_name === s.to && Number(c.amount) === Number(s.amount)
+        )
+        return (
           <li key={i} style={{ padding: "8px 12px", border: "1px solid #ddd", borderRadius: "6px", marginBottom: "8px" }}>
-          <div>
+          <div style={{ flex: 1 }}>
             <strong>{s.from}</strong> 
             <span style={{ color: "#666" }}> owes </span>
             <strong>{s.to}</strong>
             <span style={{ color: "#2a7a2a", fontWeight: "bold" }}>€{Number(s.amount).toFixed(2)}</span>
+            {isConfirmed && <span style={{ marginLeft: "8px", color: "#888", fontSize: "0.85em" }}>✅ Paid</span>}
           </div>  
-
             {s.revolut_link && (
               <a 
                 href={s.revolut_link}
@@ -352,10 +371,19 @@ export default function GroupPage() {
               Pay via Revolut
             </a>
           )}
-        </li>
-      ))}
-    </ul>
-  )}
+          {!isConfirmed && (
+          <button
+            onClick={() => handleConfirmSettlement(s)}
+            style={{ padding: "4px 10px", background: "#e6f4ea", border: "1px solid #a8d5b5", borderRadius: "4px", cursor: "pointer", color: "#2a7a2a", fontSize: "0.85em" }}
+          >
+            Mark as paid
+          </button>
+        )}
+      </li>
+    )
+  })}
+</ul>
+)}
 </section>
 </div>
   );
