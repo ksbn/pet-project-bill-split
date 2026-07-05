@@ -126,3 +126,21 @@ export async function getSettlements(groupId) {
   if (!res.ok) throw new Error("Failed to fetch settlements")
   return res.json()
 }
+
+export async function confirmSettlement(groupId, from_name, to_name, amount) {
+  const res = await fetch(`${BASE}/groups/${groupId}/settlements/confirm`, {
+    method: 'POST',
+    headers: authHeaders(),
+    body: JSON.stringify({ from_name, to_name, amount }),
+  })
+  if (!res.ok) throw new Error('Failed to confirm settlement')
+  return res.json()
+}
+
+export async function getConfirmedSettlements(groupId) {
+  const res = await fetch(`${BASE}/groups/${groupId}/settlements/confirmed`, {
+    headers: authHeaders(),
+  })
+  if (!res.ok) throw new Error('Failed to fetch confirmed settlements')
+  return res.json()
+}
