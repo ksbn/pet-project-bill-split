@@ -4,6 +4,7 @@ import { authRoutes } from './routes/auth.js'
 import { groupRoutes } from "./routes/groups.js";
 import expenseRoutes from './routes/expenses.js'  
 import settlementRoutes from './routes/settlements.js'
+import { donationRoutes } from './routes/donations.js'
 import { pool } from "./db/pool.js";
 import { requireAuth } from './middleware/auth.js'
 
@@ -42,6 +43,7 @@ app.use("/api/groups", requireAuth, groupRoutes);
 app.use('/api/auth', authRoutes);
 app.use('/api/groups/:id/expenses', requireAuth, expenseRoutes);
 app.use('/api/groups/:id/settlements', requireAuth, settlementRoutes);
+app.use('/api/donations', donationRoutes);
 
 app.get("/api/health", (_req, res) => {
   res.json({ status: "ok", timestamp: new Date().toISOString() });
