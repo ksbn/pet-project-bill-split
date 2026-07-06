@@ -19,7 +19,7 @@ router.post('/', async (req, res) => {
     res.status(201).json(expense)
   } catch (err) {
     console.error(err)
-    res.status(500).json({ error: 'Failed to add expense' })
+    res.status(500).json({ error: err.message || 'Failed to add expense' })
   }
 })
 
@@ -39,7 +39,7 @@ router.get('/', async (req, res) => {
     res.json(expenses)
   } catch (err) {
     console.error(err)
-    res.status(500).json({ error: 'Failed to fetch expenses' })
+    res.status(500).json({ error: err.message || 'Failed to fetch expenses' })
   }
 })
 
