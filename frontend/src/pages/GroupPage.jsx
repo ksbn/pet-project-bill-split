@@ -68,11 +68,15 @@ export default function GroupPage() {
     setSubmitting(true);
     setFormError(null);
     try {
-      const newUser = await addUserToGroup(groupId, { name: name.trim(), email: email.trim(), revolut_link: revolut.trim() || null });
+      const newUser = await addUserToGroup(groupId, {
+        name: name.trim(),
+        email: email.trim(),
+        revolut_link: revolut.trim() || null
+      });
       setUsers((prev) => [...prev, newUser]);
       setName("");
       setEmail("");
-      setRevolut(""); 
+      setRevolut("");
     } catch {
       setFormError("Could not add user. Please try again.");
     } finally {
@@ -115,7 +119,6 @@ export default function GroupPage() {
       setExpPaidBy("");
       setCustomSplits({});
       setSplitMode("even");
-
       getSettlements(groupId).then(setSettlements).catch(() => {});
     } catch (err) {
       setExpFormError(err.message || "Could not add expense. Please try again.");
@@ -125,7 +128,7 @@ export default function GroupPage() {
   }
 
   async function handleDeleteExpense(expenseId) {
-  if (!confirm('Delete this expense?')) return
+    if (!confirm('Delete this expense?')) return
     try {
       await deleteExpense(groupId, expenseId)
       setExpenses((prev) => prev.filter((e) => e.id !== expenseId))
@@ -161,6 +164,9 @@ export default function GroupPage() {
   if (groupLoading) return <p style={{ padding: "2rem" }}>Loading group…</p>;
   if (error) return <p style={{ padding: "2rem", color: "red" }}>{error}</p>;
 
+  const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(`Join our group "${group?.name}" on Split-It: ${window.location.origin}/join/${group?.invite_code}`)}`
+  const telegramUrl = `https://t.me/share/url?url=${encodeURIComponent(`${window.location.origin}/join/${group?.invite_code}`)}&text=${encodeURIComponent(`Join our group "${group?.name}" on Split-It!`)}`
+
   return (
     <div style={{ maxWidth: "600px", margin: "0 auto", padding: "2rem" }}>
       <section>
@@ -171,6 +177,33 @@ export default function GroupPage() {
             {group?.invite_code ?? "—"}
           </code>
         </p>
+        <div style={{ display: "flex", gap: "8px", flexWrap: "wrap", marginTop: "8px" }}>
+          <button
+            onClick={() => {
+              navigator.clipboard.writeText(`${window.location.origin}/join/${group.invite_code}`)
+              alert("Link copied!")
+            }}
+            style={{ padding: "6px 12px", borderRadius: "6px", border: "1px solid #ccc", background: "#f0f0f0", cursor: "pointer", fontSize: "0.85em" }}
+          >
+            📋 Copy invite link
+          </button>
+          <a
+            href={whatsappUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            style={{ padding: "6px 12px", borderRadius: "6px", background: "#25D366", color: "white", textDecoration: "none", fontSize: "0.85em", display: "inline-block" }}
+          >
+            💬 Share on WhatsApp
+          </a>
+          <a
+            href={telegramUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            style={{ padding: "6px 12px", borderRadius: "6px", background: "#0088cc", color: "white", textDecoration: "none", fontSize: "0.85em", display: "inline-block" }}
+          >
+            ✈️ Share on Telegram
+          </a>
+        </div>
       </section>
 
       <hr style={{ margin: "1.5rem 0" }} />
@@ -218,7 +251,6 @@ export default function GroupPage() {
               placeholder="e.g. https://revolut.me/yourname"
               style={{ display: "block", width: "100%", marginTop: "4px", padding: "6px 8px" }} />
           </label>
-
           {formError && <p style={{ color: "red", margin: 0 }}>{formError}</p>}
           <button type="submit" disabled={submitting} style={{ alignSelf: "flex-start", padding: "8px 20px" }}>
             {submitting ? "Adding…" : "Add Member"}
@@ -246,133 +278,135 @@ export default function GroupPage() {
                     €{share} per person
                   </div>
                 </div>
-              <button
-                onClick={() => handleDeleteExpense(exp.id)}
-                style={{ padding: "4px 10px", background: "#fee", border: "1px solid #fcc", borderRadius: "4px", cursor: "pointer", color: "#c00", fontSize: "0.85em", lineHeight: "1.5" }}
-              >
-                Delete
-              </button>
-            </li>
-          );
-        })}
-      </ul>
+                <button
+                  onClick={() => handleDeleteExpense(exp.id)}
+                  style={{ padding: "4px 10px", background: "#fee", border: "1px solid #fcc", borderRadius: "4px", cursor: "pointer", color: "#c00", fontSize: "0.85em", lineHeight: "1.5" }}
+                >
+                  Delete
+                </button>
+              </li>
+            );
+          })}
+        </ul>
 
-      <h3>Add Expense</h3>
-      <form onSubmit={handleAddExpense} style={{ display: "flex", flexDirection: "column", gap: "0.75rem" }}>
-        <label>
-          Title <span style={{ color: "red" }}>*</span>
-          <input type="text" value={expTitle} onChange={(e) => setExpTitle(e.target.value)}
-            placeholder="e.g. Dinner"
-            style={{ display: "block", width: "100%", marginTop: "4px", padding: "6px 8px" }} />
-        </label>
-        <label>
-          Amount <span style={{ color: "red" }}>*</span>
-          <input type="number" value={expAmount} onChange={(e) => setExpAmount(e.target.value)}
-            placeholder="e.g. 90"
-            style={{ display: "block", width: "100%", marginTop: "4px", padding: "6px 8px" }} />
-        </label>
-        <label>
-          Paid by <span style={{ color: "red" }}>*</span>
-          <select value={expPaidBy} onChange={(e) => setExpPaidBy(e.target.value)}
-            style={{ display: "block", width: "100%", marginTop: "4px", padding: "6px 8px" }}>
-            <option value="">Select member</option>
-            {users.map((u) => (
-              <option key={u.id} value={u.id}>{u.name}</option>
-            ))}
-          </select>
-        </label>
-
-        <div>
-          <strong>Split:</strong>
-          <label style={{ marginLeft: "12px" }}>
-            <input type="radio" value="even" checked={splitMode === "even"}
-              onChange={() => setSplitMode("even")} /> Even
+        <h3>Add Expense</h3>
+        <form onSubmit={handleAddExpense} style={{ display: "flex", flexDirection: "column", gap: "0.75rem" }}>
+          <label>
+            Title <span style={{ color: "red" }}>*</span>
+            <input type="text" value={expTitle} onChange={(e) => setExpTitle(e.target.value)}
+              placeholder="e.g. Dinner"
+              style={{ display: "block", width: "100%", marginTop: "4px", padding: "6px 8px" }} />
           </label>
-          <label style={{ marginLeft: "12px" }}>
-            <input type="radio" value="custom" checked={splitMode === "custom"}
-              onChange={() => setSplitMode("custom")} /> Custom
+          <label>
+            Amount <span style={{ color: "red" }}>*</span>
+            <input type="number" value={expAmount} onChange={(e) => setExpAmount(e.target.value)}
+              placeholder="e.g. 90"
+              style={{ display: "block", width: "100%", marginTop: "4px", padding: "6px 8px" }} />
           </label>
-        </div>
+          <label>
+            Paid by <span style={{ color: "red" }}>*</span>
+            <select value={expPaidBy} onChange={(e) => setExpPaidBy(e.target.value)}
+              style={{ display: "block", width: "100%", marginTop: "4px", padding: "6px 8px" }}>
+              <option value="">Select member</option>
+              {users.map((u) => (
+                <option key={u.id} value={u.id}>{u.name}</option>
+              ))}
+            </select>
+          </label>
 
-        {splitMode === "custom" && (
-          <div style={{ background: "#f9f9f9", padding: "12px", borderRadius: "6px" }}>
-            <p style={{ margin: "0 0 8px", fontSize: "0.9em", color: "#666" }}>
-              Enter each person's share (must add up to €{expAmount || 0})
-            </p>
-            {users.map((u) => (
-              <label key={u.id} style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "6px" }}>
-                <span style={{ minWidth: "100px" }}>{u.name}</span>
-                <input
-                  type="number"
-                  value={customSplits[u.id] ?? ""}
-                  onChange={(e) => setCustomSplits((prev) => ({ ...prev, [u.id]: e.target.value }))}
-                  placeholder="0"
-                  style={{ padding: "4px 8px", width: "100px" }}
-                />
-              </label>
-            ))}
+          <div>
+            <strong>Split:</strong>
+            <label style={{ marginLeft: "12px" }}>
+              <input type="radio" value="even" checked={splitMode === "even"}
+                onChange={() => setSplitMode("even")} /> Even
+            </label>
+            <label style={{ marginLeft: "12px" }}>
+              <input type="radio" value="custom" checked={splitMode === "custom"}
+                onChange={() => setSplitMode("custom")} /> Custom
+            </label>
           </div>
-        )}
 
-        {expFormError && <p style={{ color: "red", margin: 0 }}>{expFormError}</p>}
-        <button type="submit" disabled={expSubmitting} style={{ alignSelf: "flex-start", padding: "8px 20px" }}>
-          {expSubmitting ? "Adding…" : "Add Expense"}
-        </button>
-      </form>
-    </section>
-
-    <hr style={{ margin: "1.5rem 0" }} />
-
-    <section>
-      <h2>Settlements</h2>
-      <button
-        onClick={handleRecalculate}
-        disabled={recalculating}
-        style={{ marginBottom: "1rem", padding: "6px 16px", background: "#f0f0f0", border: "1px solid #ccc", borderRadius: "4px", cursor: "pointer" }}
-      >
-        {recalculating ? "Recalculating…" : "🔄 Recalculate Splits"}
-      </button>
-      {settlements.length === 0 ? (
-        <p style={{ color: "#888" }}>Everyone is settled up! 🎉</p>
-      ) : (
-       <ul style={{ listStyle: "none", padding: 0 }}>
-         {settlements.map((s, i) => {
-          const isConfirmed = confirmed.some(
-          (c) => c.from_name === s.from && c.to_name === s.to && Number(c.amount) === Number(s.amount)
-        )
-        return (
-          <li key={i} style={{ padding: "8px 12px", border: "1px solid #ddd", borderRadius: "6px", marginBottom: "8px", display: "flex", alignItems: "center", gap: "10px" }}>
-          <div style={{ flex: 1 }}>
-            <strong>{s.from}</strong> 
-            <span style={{ color: "#666" }}> owes </span>
-            <strong>{s.to}</strong>
-            <span style={{ color: "#2a7a2a", fontWeight: "bold" }}>€{Number(s.amount).toFixed(2)}</span>
-            {isConfirmed && <span style={{ marginLeft: "8px", color: "#888", fontSize: "0.85em" }}>✅ Paid</span>}
-          </div>  
-            {s.revolut_link && (
-              <a 
-                href={s.revolut_link}
-                target="_blank"
-                rel="noopener noreferrer"
-                style={{ marginLeft: "auto", padding: "4px 10px", background: "#0075eb", color: "white", borderRadius: "6px", textDecoration: "none", fontSize: "0.85em" }}
-            >
-              Pay via Revolut
-            </a>
+          {splitMode === "custom" && (
+            <div style={{ background: "#f9f9f9", padding: "12px", borderRadius: "6px" }}>
+              <p style={{ margin: "0 0 8px", fontSize: "0.9em", color: "#666" }}>
+                Enter each person's share (must add up to €{expAmount || 0})
+              </p>
+              {users.map((u) => (
+                <label key={u.id} style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "6px" }}>
+                  <span style={{ minWidth: "100px" }}>{u.name}</span>
+                  <input
+                    type="number"
+                    value={customSplits[u.id] ?? ""}
+                    onChange={(e) => setCustomSplits((prev) => ({ ...prev, [u.id]: e.target.value }))}
+                    placeholder="0"
+                    style={{ padding: "4px 8px", width: "100px" }}
+                  />
+                </label>
+              ))}
+            </div>
           )}
-          {!isConfirmed && (
-          <button
-            onClick={() => handleConfirmSettlement(s)}
-            style={{ padding: "4px 10px", background: "#e6f4ea", border: "1px solid #a8d5b5", borderRadius: "6px", cursor: "pointer", color: "#2a7a2a", fontSize: "0.85em", lineHeight: "1.5" }}
-          >
-            Mark as paid
+
+          {expFormError && <p style={{ color: "red", margin: 0 }}>{expFormError}</p>}
+          <button type="submit" disabled={expSubmitting} style={{ alignSelf: "flex-start", padding: "8px 20px" }}>
+            {expSubmitting ? "Adding…" : "Add Expense"}
           </button>
+        </form>
+      </section>
+
+      <hr style={{ margin: "1.5rem 0" }} />
+
+      <section>
+        <h2>Settlements</h2>
+        <button
+          onClick={handleRecalculate}
+          disabled={recalculating}
+          style={{ marginBottom: "1rem", padding: "6px 16px", background: "#f0f0f0", border: "1px solid #ccc", borderRadius: "4px", cursor: "pointer" }}
+        >
+          {recalculating ? "Recalculating…" : "🔄 Recalculate Splits"}
+        </button>
+        {settlements.length === 0 ? (
+          <p style={{ color: "#888" }}>Everyone is settled up! 🎉</p>
+        ) : (
+          <ul style={{ listStyle: "none", padding: 0 }}>
+            {settlements.map((s, i) => {
+              const isConfirmed = confirmed.some(
+                (c) => c.from_name === s.from && c.to_name === s.to && Number(c.amount) === Number(s.amount)
+              )
+              return (
+                <li key={i} style={{ padding: "8px 12px", border: "1px solid #ddd", borderRadius: "6px", marginBottom: "8px", display: "flex", alignItems: "center", gap: "8px", opacity: isConfirmed ? 0.5 : 1 }}>
+                  <div style={{ flex: 1 }}>
+                    <strong>{s.from}</strong>
+                    <span style={{ color: "#666" }}> owes </span>
+                    <strong>{s.to}</strong>
+                    <span style={{ color: "#2a7a2a", fontWeight: "bold" }}> €{Number(s.amount).toFixed(2)}</span>
+                    {isConfirmed && <span style={{ marginLeft: "8px", color: "#888", fontSize: "0.85em" }}>✅ Paid</span>}
+                  </div>
+                  <div style={{ display: "flex", gap: "6px", flexShrink: 0 }}>
+                    {s.revolut_link && (
+                      <a
+                        href={s.revolut_link}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        style={{ padding: "4px 10px", background: "#0075eb", color: "white", borderRadius: "6px", textDecoration: "none", fontSize: "0.85em", whiteSpace: "nowrap", display: "inline-block", lineHeight: "1.5" }}
+                      >
+                        Pay via Revolut
+                      </a>
+                    )}
+                    {!isConfirmed && (
+                      <button
+                        onClick={() => handleConfirmSettlement(s)}
+                        style={{ padding: "4px 10px", background: "#e6f4ea", border: "1px solid #a8d5b5", borderRadius: "6px", cursor: "pointer", color: "#2a7a2a", fontSize: "0.85em", whiteSpace: "nowrap", lineHeight: "1.5" }}
+                      >
+                        Mark as paid
+                      </button>
+                    )}
+                  </div>
+                </li>
+              )
+            })}
+          </ul>
         )}
-      </li>
-    )
-  })}
-</ul>
-)}
-</section>
-</div>
+      </section>
+    </div>
   );
-  }
+}
