@@ -15,6 +15,7 @@ export default function GroupPage() {
   const [groupLoading, setGroupLoading] = useState(!group);
   const [usersLoading, setUsersLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [confirmed, setConfirmed] = useState([]);
 
   // member form
   const [name, setName] = useState("");
@@ -31,15 +32,11 @@ export default function GroupPage() {
   const [customSplits, setCustomSplits] = useState({});
   const [expSubmitting, setExpSubmitting] = useState(false);
   const [expFormError, setExpFormError] = useState(null);
-
   const [recalculating, setRecalculating] = useState(false);
-  const [confirmed, setConfirmed] = useState([]);
 
   useEffect(() => {
-  if (!getToken()) {
-    navigate("/login")
-  }
-}, [navigate])
+    if (!getToken()) navigate("/login")
+  }, [navigate])
 
   useEffect(() => {
     if (group) return;
@@ -51,27 +48,19 @@ export default function GroupPage() {
   }, [groupId, group]);
 
   useEffect(() => {
-    getGroupUsers(groupId)
-      .then(setUsers)
-      .catch(() => setError("Could not load users."))
-      .finally(() => setUsersLoading(false));
-  }, [groupId]);
-
-  useEffect(() => {
-    getExpenses(groupId)
-      .then(setExpenses)
-      .catch(() => {});
-  }, [groupId]);
-
-  useEffect(() => {
-  getSettlements(groupId)
-    .then(setSettlements)
-    .catch(() => {});
-}, [groupId]);
-
-  useEffect(() => {
-  getConfirmedSettlements(groupId).then(setConfirmed).catch(() => {})
-}, [groupId])
+    Promise.all([
+      getGroupUsers(groupId),
+      getExpenses(groupId),
+      getSettlements(groupId),
+      getConfirmedSettlements(groupId),
+    ]).then(([users, expenses, settlements, confirmed]) => {
+      setUsers(users)
+      setExpenses(expenses)
+      setSettlements(settlements)
+      setConfirmed(confirmed)
+      setUsersLoading(false)
+    }).catch(() => setError("Could not load group data."))
+  }, [groupId])
 
   async function handleAddUser(e) {
     e.preventDefault();
@@ -160,14 +149,14 @@ export default function GroupPage() {
   }
 
   async function handleConfirmSettlement(s) {
-  if (!confirm(`Mark "${s.from} owes ${s.to} €${s.amount}" as paid?`)) return
-  try {
-    await confirmSettlement(groupId, s.from, s.to, s.amount)
-    setConfirmed((prev) => [...prev, { from_name: s.from, to_name: s.to, amount: s.amount }])
-  } catch {
-    alert('Could not confirm settlement.')
+    if (!confirm(`Mark "${s.from} owes ${s.to} €${s.amount}" as paid?`)) return
+    try {
+      await confirmSettlement(groupId, s.from, s.to, s.amount)
+      setConfirmed((prev) => [...prev, { from_name: s.from, to_name: s.to, amount: s.amount }])
+    } catch {
+      alert('Could not confirm settlement.')
+    }
   }
-}
 
   if (groupLoading) return <p style={{ padding: "2rem" }}>Loading group…</p>;
   if (error) return <p style={{ padding: "2rem", color: "red" }}>{error}</p>;
@@ -223,7 +212,6 @@ export default function GroupPage() {
               placeholder="e.g. alice@example.com"
               style={{ display: "block", width: "100%", marginTop: "4px", padding: "6px 8px" }} />
           </label>
-
           <label>
             Revolut link <span style={{ color: "#888", fontWeight: "normal" }}>(optional)</span>
             <input type="url" value={revolut} onChange={(e) => setRevolut(e.target.value)}
@@ -246,105 +234,105 @@ export default function GroupPage() {
         <ul style={{ listStyle: "none", padding: 0 }}>
           {expenses.map((exp) => {
             const paidBy = users.find((u) => u.id === exp.paid_by);
-            const share = users.length > 0 ? (exp.amount / users.length).toFixed(2) : "—";
+            const share = users.length > 0 ? (Number(exp.amount) / users.length).toFixed(2) : "—";
             return (
-              <li key={exp.id} style={{ padding: "8px 12px", border: "1px solid #ddd", borderRadius: "6px", marginBottom: "8px" }}>
+              <li key={exp.id} style={{ padding: "8px 12px", border: "1px solid #ddd", borderRadius: "6px", marginBottom: "8px", display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
                 <div>
-                <strong>{exp.title}</strong> — €{exp.amount}
-                <span style={{ marginLeft: "8px", color: "#666", fontSize: "0.9em" }}>
-                  paid by {paidBy?.name ?? "unknown"}
-                </span>
-                <div style={{ fontSize: "0.85em", color: "#888", marginTop: "4px" }}>
-                  €{share} per person
+                  <strong>{exp.title}</strong> — €{exp.amount}
+                  <span style={{ marginLeft: "8px", color: "#666", fontSize: "0.9em" }}>
+                    paid by {paidBy?.name ?? "unknown"}
+                  </span>
+                  <div style={{ fontSize: "0.85em", color: "#888", marginTop: "4px" }}>
+                    €{share} per person
+                  </div>
                 </div>
-              </div>
               <button
-        onClick={() => handleDeleteExpense(exp.id)}
-        style={{ padding: "4px 10px", background: "#fee", border: "1px solid #fcc", borderRadius: "4px", cursor: "pointer", color: "#c00", fontSize: "0.85em" }}
-      >
-        Delete
-      </button>
-              </li>
-            );
-          })}
-        </ul>
+                onClick={() => handleDeleteExpense(exp.id)}
+                style={{ padding: "4px 10px", background: "#fee", border: "1px solid #fcc", borderRadius: "4px", cursor: "pointer", color: "#c00", fontSize: "0.85em", lineHeight: "1.5" }}
+              >
+                Delete
+              </button>
+            </li>
+          );
+        })}
+      </ul>
 
-        <h3>Add Expense</h3>
-        <form onSubmit={handleAddExpense} style={{ display: "flex", flexDirection: "column", gap: "0.75rem" }}>
-          <label>
-            Title <span style={{ color: "red" }}>*</span>
-            <input type="text" value={expTitle} onChange={(e) => setExpTitle(e.target.value)}
-              placeholder="e.g. Dinner"
-              style={{ display: "block", width: "100%", marginTop: "4px", padding: "6px 8px" }} />
-          </label>
-          <label>
-            Amount <span style={{ color: "red" }}>*</span>
-            <input type="number" value={expAmount} onChange={(e) => setExpAmount(e.target.value)}
-              placeholder="e.g. 90"
-              style={{ display: "block", width: "100%", marginTop: "4px", padding: "6px 8px" }} />
-          </label>
-          <label>
-            Paid by <span style={{ color: "red" }}>*</span>
-            <select value={expPaidBy} onChange={(e) => setExpPaidBy(e.target.value)}
-              style={{ display: "block", width: "100%", marginTop: "4px", padding: "6px 8px" }}>
-              <option value="">Select member</option>
-              {users.map((u) => (
-                <option key={u.id} value={u.id}>{u.name}</option>
-              ))}
-            </select>
-          </label>
+      <h3>Add Expense</h3>
+      <form onSubmit={handleAddExpense} style={{ display: "flex", flexDirection: "column", gap: "0.75rem" }}>
+        <label>
+          Title <span style={{ color: "red" }}>*</span>
+          <input type="text" value={expTitle} onChange={(e) => setExpTitle(e.target.value)}
+            placeholder="e.g. Dinner"
+            style={{ display: "block", width: "100%", marginTop: "4px", padding: "6px 8px" }} />
+        </label>
+        <label>
+          Amount <span style={{ color: "red" }}>*</span>
+          <input type="number" value={expAmount} onChange={(e) => setExpAmount(e.target.value)}
+            placeholder="e.g. 90"
+            style={{ display: "block", width: "100%", marginTop: "4px", padding: "6px 8px" }} />
+        </label>
+        <label>
+          Paid by <span style={{ color: "red" }}>*</span>
+          <select value={expPaidBy} onChange={(e) => setExpPaidBy(e.target.value)}
+            style={{ display: "block", width: "100%", marginTop: "4px", padding: "6px 8px" }}>
+            <option value="">Select member</option>
+            {users.map((u) => (
+              <option key={u.id} value={u.id}>{u.name}</option>
+            ))}
+          </select>
+        </label>
 
-          <div>
-            <strong>Split:</strong>
-            <label style={{ marginLeft: "12px" }}>
-              <input type="radio" value="even" checked={splitMode === "even"}
-                onChange={() => setSplitMode("even")} /> Even
-            </label>
-            <label style={{ marginLeft: "12px" }}>
-              <input type="radio" value="custom" checked={splitMode === "custom"}
-                onChange={() => setSplitMode("custom")} /> Custom
-            </label>
+        <div>
+          <strong>Split:</strong>
+          <label style={{ marginLeft: "12px" }}>
+            <input type="radio" value="even" checked={splitMode === "even"}
+              onChange={() => setSplitMode("even")} /> Even
+          </label>
+          <label style={{ marginLeft: "12px" }}>
+            <input type="radio" value="custom" checked={splitMode === "custom"}
+              onChange={() => setSplitMode("custom")} /> Custom
+          </label>
+        </div>
+
+        {splitMode === "custom" && (
+          <div style={{ background: "#f9f9f9", padding: "12px", borderRadius: "6px" }}>
+            <p style={{ margin: "0 0 8px", fontSize: "0.9em", color: "#666" }}>
+              Enter each person's share (must add up to €{expAmount || 0})
+            </p>
+            {users.map((u) => (
+              <label key={u.id} style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "6px" }}>
+                <span style={{ minWidth: "100px" }}>{u.name}</span>
+                <input
+                  type="number"
+                  value={customSplits[u.id] ?? ""}
+                  onChange={(e) => setCustomSplits((prev) => ({ ...prev, [u.id]: e.target.value }))}
+                  placeholder="0"
+                  style={{ padding: "4px 8px", width: "100px" }}
+                />
+              </label>
+            ))}
           </div>
+        )}
 
-          {splitMode === "custom" && (
-            <div style={{ background: "#f9f9f9", padding: "12px", borderRadius: "6px" }}>
-              <p style={{ margin: "0 0 8px", fontSize: "0.9em", color: "#666" }}>
-                Enter each person's share (must add up to €{expAmount || 0})
-              </p>
-              {users.map((u) => (
-                <label key={u.id} style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "6px" }}>
-                  <span style={{ minWidth: "100px" }}>{u.name}</span>
-                  <input
-                    type="number"
-                    value={customSplits[u.id] ?? ""}
-                    onChange={(e) => setCustomSplits((prev) => ({ ...prev, [u.id]: e.target.value }))}
-                    placeholder="0"
-                    style={{ padding: "4px 8px", width: "100px" }}
-                  />
-                </label>
-              ))}
-            </div>
-          )}
+        {expFormError && <p style={{ color: "red", margin: 0 }}>{expFormError}</p>}
+        <button type="submit" disabled={expSubmitting} style={{ alignSelf: "flex-start", padding: "8px 20px" }}>
+          {expSubmitting ? "Adding…" : "Add Expense"}
+        </button>
+      </form>
+    </section>
 
-          {expFormError && <p style={{ color: "red", margin: 0 }}>{expFormError}</p>}
-          <button type="submit" disabled={expSubmitting} style={{ alignSelf: "flex-start", padding: "8px 20px" }}>
-            {expSubmitting ? "Adding…" : "Add Expense"}
-          </button>
-        </form>
-      </section>
-
-      <hr style={{ margin: "1.5rem 0" }} />
+    <hr style={{ margin: "1.5rem 0" }} />
 
     <section>
-       <h2>Settlements</h2>
-       <button
-          onClick={handleRecalculate}
-          disabled={recalculating}
-          style={{ marginBottom: "1rem", padding: "6px 16px", background: "#f0f0f0", border: "1px solid #ccc", borderRadius: "4px", cursor: "pointer" }}
-        >
-          {recalculating ? "Recalculating…" : "🔄 Recalculate Splits"}
-        </button>
-       {settlements.length === 0 ? (
+      <h2>Settlements</h2>
+      <button
+        onClick={handleRecalculate}
+        disabled={recalculating}
+        style={{ marginBottom: "1rem", padding: "6px 16px", background: "#f0f0f0", border: "1px solid #ccc", borderRadius: "4px", cursor: "pointer" }}
+      >
+        {recalculating ? "Recalculating…" : "🔄 Recalculate Splits"}
+      </button>
+      {settlements.length === 0 ? (
         <p style={{ color: "#888" }}>Everyone is settled up! 🎉</p>
       ) : (
        <ul style={{ listStyle: "none", padding: 0 }}>
@@ -353,7 +341,7 @@ export default function GroupPage() {
           (c) => c.from_name === s.from && c.to_name === s.to && Number(c.amount) === Number(s.amount)
         )
         return (
-          <li key={i} style={{ padding: "8px 12px", border: "1px solid #ddd", borderRadius: "6px", marginBottom: "8px" }}>
+          <li key={i} style={{ padding: "8px 12px", border: "1px solid #ddd", borderRadius: "6px", marginBottom: "8px", display: "flex", alignItems: "center", gap: "10px" }}>
           <div style={{ flex: 1 }}>
             <strong>{s.from}</strong> 
             <span style={{ color: "#666" }}> owes </span>
@@ -366,7 +354,7 @@ export default function GroupPage() {
                 href={s.revolut_link}
                 target="_blank"
                 rel="noopener noreferrer"
-                style={{ marginLeft: "auto", padding: "4px 10px", background: "#0075eb", color: "white", borderRadius: "4px", textDecoration: "none", fontSize: "0.85em" }}
+                style={{ marginLeft: "auto", padding: "4px 10px", background: "#0075eb", color: "white", borderRadius: "6px", textDecoration: "none", fontSize: "0.85em" }}
             >
               Pay via Revolut
             </a>
@@ -374,7 +362,7 @@ export default function GroupPage() {
           {!isConfirmed && (
           <button
             onClick={() => handleConfirmSettlement(s)}
-            style={{ padding: "4px 10px", background: "#e6f4ea", border: "1px solid #a8d5b5", borderRadius: "4px", cursor: "pointer", color: "#2a7a2a", fontSize: "0.85em" }}
+            style={{ padding: "4px 10px", background: "#e6f4ea", border: "1px solid #a8d5b5", borderRadius: "6px", cursor: "pointer", color: "#2a7a2a", fontSize: "0.85em", lineHeight: "1.5" }}
           >
             Mark as paid
           </button>
