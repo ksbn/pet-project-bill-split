@@ -43,7 +43,7 @@ app.use("/api/groups", requireAuth, groupRoutes);
 app.use('/api/auth', authRoutes);
 app.use('/api/groups/:id/expenses', requireAuth, expenseRoutes);
 app.use('/api/groups/:id/settlements', requireAuth, settlementRoutes);
-app.use('/api/donations', donationRoutes);
+app.use('/api/donations', requireAuth, donationRoutes);
 
 app.get("/api/health", (_req, res) => {
   res.json({ status: "ok", timestamp: new Date().toISOString() });
