@@ -2,7 +2,7 @@ import { pool } from '../db/pool.js'
 
 export async function getSettlements(group_id) {
   const { rows: users } = await pool.query(
-    'SELECT id, name FROM users WHERE group_id = $1',
+    'SELECT id, name, revolut_link FROM users WHERE group_id = $1',
     [group_id]
   )
 
@@ -23,7 +23,7 @@ export async function getSettlements(group_id) {
   // positive = they are owed money, negative = they owe money
   const balances = {}
   for (const user of users) {
-    balances[user.id] = { name: user.name, balance: 0 }
+    balances[user.id] = { name: user.name, balance: 0, revolut_link: user.revolut_link }
   }
 
   for (const expense of expenses) {
@@ -41,9 +41,9 @@ export async function getSettlements(group_id) {
   const debtors = []
   const creditors = []
 
-  for (const [id, { name, balance }] of Object.entries(balances)) {
+  for (const [id, { name, balance, revolut_link }] of Object.entries(balances)) {
     if (balance < -0.01) debtors.push({ id, name, amount: -balance })
-    if (balance > 0.01) creditors.push({ id, name, amount: balance })
+    if (balance > 0.01) creditors.push({ id, name, amount: balance, revolut_link })
   }
 
   const settlements = []
@@ -58,6 +58,7 @@ export async function getSettlements(group_id) {
       from: debtor.name,
       to: creditor.name,
       amount: amount.toFixed(2),
+      revolut_link: creditor.revolut_link ?? null,
     })
 
     debtor.amount -= amount
@@ -68,4 +69,21 @@ export async function getSettlements(group_id) {
   }
 
   return settlements
+}
+
+export async function confirmSettlement(group_id, from_name, to_name, amount) {
+  const { rows } = await pool.query(
+    `INSERT INTO settlement_confirmations (group_id, from_name, to_name, amount)
+     VALUES ($1, $2, $3, $4) RETURNING *`,
+    [group_id, from_name, to_name, amount]
+  )
+  return rows[0]
+}
+
+export async function getConfirmedSettlements(group_id) {
+  const { rows } = await pool.query(
+    `SELECT * FROM settlement_confirmations WHERE group_id = $1 ORDER BY confirmed_at DESC`,
+    [group_id]
+  )
+  return rows
 }

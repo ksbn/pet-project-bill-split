@@ -1,9 +1,12 @@
 import express from "express";
 import userRoutes from "./routes/users.js";
+import { authRoutes } from './routes/auth.js'
 import { groupRoutes } from "./routes/groups.js";
 import expenseRoutes from './routes/expenses.js'  
 import settlementRoutes from './routes/settlements.js'
+import { donationRoutes } from './routes/donations.js'
 import { pool } from "./db/pool.js";
+import { requireAuth } from './middleware/auth.js'
 
 const app = express();
 const PORT = Number(process.env.PORT) || 3000;
@@ -14,8 +17,17 @@ app.use(express.json());
 // Allow requests from the frontend dev server
 app.use((_req, res, next) => {
   res.setHeader("Access-Control-Allow-Origin", "http://localhost:5173");
-  res.setHeader("Access-Control-Allow-Headers", "Content-Type");
+  res.setHeader("Access-Control-Allow-Headers", "Content-Type", "Authorization");
+  res.setHeader("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
   next();
+});
+
+// Handle preflight requests
+app.options(/.*/, (_req, res) => {
+  res.setHeader("Access-Control-Allow-Origin", "http://localhost:5173");
+  res.setHeader("Access-Control-Allow-Headers", "Content-Type, Authorization");
+  res.setHeader("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
+  res.sendStatus(204);
 });
 
 // Never let the browser cache API responses — avoids stale data after DB resets
@@ -26,10 +38,12 @@ app.use("/api", (_req, res, next) => {
 
 // ── Routes ──────────────────────────────────────────────────────────────────
 // Mount route files here. Keep index.ts clean – one line per feature.
-app.use("/api/groups/:id/users", userRoutes);
-app.use("/api/groups", groupRoutes);
-app.use('/api/groups/:id/expenses', expenseRoutes)
-app.use('/api/groups/:id/settlements', settlementRoutes)
+app.use("/api/groups/:id/users", requireAuth, userRoutes);
+app.use("/api/groups", requireAuth, groupRoutes);
+app.use('/api/auth', authRoutes);
+app.use('/api/groups/:id/expenses', requireAuth, expenseRoutes);
+app.use('/api/groups/:id/settlements', requireAuth, settlementRoutes);
+app.use('/api/donations', requireAuth, donationRoutes);
 
 app.get("/api/health", (_req, res) => {
   res.json({ status: "ok", timestamp: new Date().toISOString() });

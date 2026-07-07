@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
+import { getToken } from "../services/token";
 import { getGroupByInviteCode, joinGroupByInviteCode } from "../services/api";
 
 export default function JoinPage() {
@@ -15,7 +16,12 @@ export default function JoinPage() {
   const [formError, setFormError] = useState(null);
 
   useEffect(() => {
-    if (!inviteCode) {
+   if (!getToken()) {
+    navigate("/login")
+     return;
+   }
+      
+  if (!inviteCode) {
     setError("Missing invite code.");
     setLoading(false);
     return;
@@ -24,7 +30,7 @@ export default function JoinPage() {
       .then(setGroup)
       .catch(() => setError("Invalid or expired invite link."))
       .finally(() => setLoading(false));
-  }, [inviteCode]);
+  }, [navigate, inviteCode]);
 
   async function handleJoin(e) {
     e.preventDefault();

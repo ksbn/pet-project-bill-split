@@ -7,7 +7,7 @@ const router = Router({ mergeParams: true });
 router.post("/", async (req, res) => {
   try {
     const { id: group_id } = req.params;
-    const { name, email } = req.body;
+    const { name, email, revolut_link } = req.body;
 
     if (!name) {
       return res.status(400).json({ error: "Name is required" });
@@ -17,6 +17,7 @@ router.post("/", async (req, res) => {
       group_id,
       name,
       email,
+      revolut_link
     });
     return res.status(201).json(newUser);
   } catch (error) {

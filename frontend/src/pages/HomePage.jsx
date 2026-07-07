@@ -1,15 +1,22 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { createGroup } from "../services/api";
+import { getToken } from "../services/token";
+import { clearToken } from "../services/token"
 import styles from "./HomePage.module.css";
 
-// Put page-level components in src/pages/.
 // Each page is composed from smaller components in src/components/.
 export function HomePage() {
   const navigate = useNavigate();
   const [groupName, setGroupName] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+
+  useEffect(() => {
+    if (!getToken()) {
+      navigate("/login");
+    }
+  }, [navigate]);
 
   async function handleCreateGroup() {
     setLoading(true);
@@ -23,6 +30,11 @@ export function HomePage() {
     } finally {
       setLoading(false);
     }
+  }
+
+  function handleLogout() {
+  clearToken()
+  navigate("/login")
   }
 
   return (
