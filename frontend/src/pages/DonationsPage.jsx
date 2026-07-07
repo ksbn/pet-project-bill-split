@@ -1,6 +1,6 @@
 import { Navigate } from "react-router-dom";
 import { useState, useEffect } from "react";
-import { getDonations } from "../services/api";
+import { getDonations, recordDonation } from "../services/api";
 
 export default function DonationsPage() {
   const token = localStorage.getItem("token");
@@ -33,6 +33,21 @@ export default function DonationsPage() {
   if (error) {
     return <p>{error}</p>;
   }
+
+  async function handleDonate(org) {
+    try {
+      await recordDonation(org.org_name, org.org_url, org.description);
+
+      setOrganizations((prev) =>
+        prev.map((item) =>
+          item.id === org.id ? { ...item, donated: true } : item,
+        ),
+      );
+    } catch (err) {
+      setError(err.message);
+    }
+  }
+
   return (
     <div
       style={{
@@ -64,7 +79,20 @@ export default function DonationsPage() {
           <br />
           <br />
 
-          <button>Donate</button>
+          <button
+            onClick={() => handleDonate(org)}
+            disabled={org.donated}
+            style={{
+              backgroundColor: org.donated ? "#ccc" : "green",
+              color: "white",
+              padding: "8px 12px",
+              border: "none",
+              borderRadius: "4px",
+              cursor: org.donated ? "default" : "pointer",
+            }}
+          >
+            {org.donated ? "✅ Donated" : "Donate"}
+          </button>
         </div>
       ))}
     </div>
