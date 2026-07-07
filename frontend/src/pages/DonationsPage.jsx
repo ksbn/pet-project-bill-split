@@ -1,6 +1,7 @@
 import { Navigate } from "react-router-dom";
 import { useState, useEffect } from "react";
 import { getDonations, recordDonation } from "../services/api";
+import { Link } from "react-router-dom";
 
 export default function DonationsPage() {
   const token = localStorage.getItem("token");
@@ -95,6 +96,9 @@ export default function DonationsPage() {
           </button>
         </div>
       ))}
+      <div style={{ marginTop: "2rem" }}>
+        <Link to="/">← Back to Home</Link>
+      </div>
     </div>
   );
 }
