@@ -1,3 +1,36 @@
+:root {
+  /* Colors */
+  --color-primary: #2563eb;
+  --color-primary-hover: #1d4ed8;
+  --color-primary-disabled: #93c5fd;
+
+  --color-text: #1a1a1a;
+  --color-text-secondary: #64748b;
+  --color-white: #ffffff;
+  --color-border: #d1d5db;
+
+  /* Typography */
+  --font-size-title: 3rem;
+  --font-size-subtitle: 1.2rem;
+  --font-size-body: 1rem;
+  --font-size-button: 1.1rem;
+
+  /* Spacing */
+  --space-sm: 1rem;
+  --space-md: 2rem;
+  --space-xl: 5rem;
+  --font-size-card-title: 1.4rem;
+
+  /* Radius */
+  --radius-sm: 8px;
+  --radius-md: 10px;
+
+  /* Widths */
+  --width-form: 420px;
+  --width-text: 600px;
+  --width-card: 480px;
+}
+
 /* Base reset and global styles */
 *,
 *::before,
@@ -15,3 +48,30 @@ body {
   color: #1a1a1a;
   background: #fff;
 }
+
+.navbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+
+  padding: 18px 32px;
+
+  border-bottom: 1px solid #eee;
+
+  background: white;
+}
+
+.logo {
+  font-size: 28px;
+  font-weight: bold;
+
+  text-decoration: none;
+  color: black;
+}
+
+.app-container {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 2rem;
+}
+

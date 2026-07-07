@@ -4,10 +4,13 @@ import GroupPage from "./pages/GroupPage";
 import JoinPage from "./pages/JoinPage";
 import LoginPage from "./pages/LoginPage";
 import RegisterPage from "./pages/RegisterPage";
+import Navbar from "./components/Navbar"; 
  
 export default function App() {
   return (
     <BrowserRouter>
+      <Navbar />
+      <main className="app-container">
       <Routes>
         <Route path="/" element={<HomePage />} />
         <Route path="/groups/:groupId" element={<GroupPage />} />
@@ -15,6 +18,7 @@ export default function App() {
         <Route path="/login" element={<LoginPage />} />
         <Route path="/register" element={<RegisterPage />} />
       </Routes>
+      </main>
     </BrowserRouter>
   );
 }
