@@ -146,6 +146,18 @@ export async function getConfirmedSettlements(groupId) {
 }
 
 //Donation
+export async function getDonations() {
+  const res = await fetch(`${BASE}/donations`, {
+    headers: authHeaders(),
+  });
+
+  if (!res.ok) {
+    throw new Error("Failed to fetch donations");
+  }
+
+  return res.json();
+}
+
 export async function recordDonation(org_name, org_url, description) {
   const res = await fetch(`${BASE}/donations`, {
     method: "POST",
