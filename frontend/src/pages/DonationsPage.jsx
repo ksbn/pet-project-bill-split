@@ -34,8 +34,39 @@ export default function DonationsPage() {
     return <p>{error}</p>;
   }
   return (
-    <div>
+    <div
+      style={{
+        maxWidth: "800px",
+        margin: "0 auto",
+        padding: "2rem",
+      }}
+    >
       <h1>Donations</h1>
+
+      {organizations.map((org) => (
+        <div
+          key={org.id}
+          style={{
+            border: "1px solid #ddd",
+            borderRadius: "8px",
+            padding: "1rem",
+            marginBottom: "1rem",
+          }}
+        >
+          <h2>{org.org_name}</h2>
+
+          <p>{org.description}</p>
+
+          <a href={org.org_url} target="_blank" rel="noopener noreferrer">
+            Visit Website
+          </a>
+
+          <br />
+          <br />
+
+          <button>Donate</button>
+        </div>
+      ))}
     </div>
   );
 }
