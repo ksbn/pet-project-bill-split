@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { useParams, useLocation, useNavigate } from "react-router-dom";
-import { getGroup, getGroupUsers, addUserToGroup, addExpense, getExpenses, getSettlements, recalculateSplits, deleteExpense, confirmSettlement, getConfirmedSettlements } from "../services/api";
-import { getToken } from "../services/token"
+import { getToken } from "../services/token";
+import { getGroup, getGroupUsers, addUserToGroup, addExpense, getExpenses, getSettlements, recalculateSplits, deleteExpense, confirmSettlement, getConfirmedSettlements, getDonations } from "../services/api";
 
 export default function GroupPage() {
   const { groupId } = useParams();
@@ -34,6 +34,13 @@ export default function GroupPage() {
   const [expFormError, setExpFormError] = useState(null);
   const [recalculating, setRecalculating] = useState(false);
 
+  // donation form
+  const [donations, setDonations] = useState([]);
+  const [donationOrg, setDonationOrg] = useState("");
+  const [donationAmount, setDonationAmount] = useState("");
+  const [donationSubmitting, setDonationSubmitting] = useState(false);
+  const [donationError, setDonationError] = useState(null);
+
   useEffect(() => {
     if (!getToken()) navigate("/login")
   }, [navigate])
@@ -61,6 +68,12 @@ export default function GroupPage() {
       setUsersLoading(false)
     }).catch(() => setError("Could not load group data."))
   }, [groupId])
+
+  useEffect(() => {
+    getDonations()
+    .then(setDonations)
+    .catch(() => {});
+  }, []);
 
   async function handleAddUser(e) {
     e.preventDefault();
@@ -150,6 +163,32 @@ export default function GroupPage() {
       setRecalculating(false);
     }
   }
+
+  async function handleDonate(e) {
+  e.preventDefault();
+  if (!donationOrg || !donationAmount || !expPaidBy) {
+    setDonationError("Please select an organisation, enter an amount, and select who is paying.");
+    return;
+  }
+  const org = donations.find((d) => d.id === Number(donationOrg));
+  setDonationSubmitting(true);
+  setDonationError(null);
+  try {
+    const newExpense = await addExpense(groupId, {
+      title: `🎗️ Donation — ${org.org_name}`,
+      amount: Number(donationAmount),
+      paid_by: Number(expPaidBy),
+    });
+    setExpenses((prev) => [newExpense, ...prev]);
+    setDonationOrg("");
+    setDonationAmount("");
+    getSettlements(groupId).then(setSettlements).catch(() => {});
+  } catch {
+    setDonationError("Could not add donation. Please try again.");
+  } finally {
+    setDonationSubmitting(false);
+  }
+}
 
   async function handleConfirmSettlement(s) {
     if (!confirm(`Mark "${s.from} owes ${s.to} €${s.amount}" as paid?`)) return
@@ -406,6 +445,47 @@ export default function GroupPage() {
             })}
           </ul>
         )}
+      </section>
+
+      <hr style={{ margin: "1.5rem 0" }} />
+
+      <section>
+        <h2>💚 Donate Together</h2>
+        <p style={{ color: "#666", fontSize: "0.9em" }}>
+          Choose a charity to donate to — the cost will be split evenly among all members.
+        </p>
+        <form onSubmit={handleDonate} style={{ display: "flex", flexDirection: "column", gap: "0.75rem" }}>
+          <label>
+            Organisation <span style={{ color: "red" }}>*</span>
+            <select value={donationOrg} onChange={(e) => setDonationOrg(e.target.value)}
+              style={{ display: "block", width: "100%", marginTop: "4px", padding: "6px 8px" }}>
+              <option value="">Select organisation</option>
+              {donations.map((d) => (
+                <option key={d.id} value={d.id}>{d.org_name}</option>
+              ))}
+            </select>
+          </label>
+          <label>
+            Amount (€) <span style={{ color: "red" }}>*</span>
+            <input type="number" value={donationAmount} onChange={(e) => setDonationAmount(e.target.value)}
+              placeholder="e.g. 20"
+              style={{ display: "block", width: "100%", marginTop: "4px", padding: "6px 8px" }} />
+          </label>
+          <label>
+            Paid by <span style={{ color: "red" }}>*</span>
+            <select value={expPaidBy} onChange={(e) => setExpPaidBy(e.target.value)}
+              style={{ display: "block", width: "100%", marginTop: "4px", padding: "6px 8px" }}>
+              <option value="">Select member</option>
+              {users.map((u) => (
+                <option key={u.id} value={u.id}>{u.name}</option>
+              ))}
+            </select>
+          </label>
+          {donationError && <p style={{ color: "red", margin: 0 }}>{donationError}</p>}
+          <button type="submit" disabled={donationSubmitting} style={{ alignSelf: "flex-start", padding: "8px 20px" }}>
+            {donationSubmitting ? "Adding…" : "Donate Together"}
+          </button>
+        </form>
       </section>
     </div>
   );
