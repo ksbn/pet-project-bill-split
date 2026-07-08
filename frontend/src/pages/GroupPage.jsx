@@ -33,6 +33,13 @@ export default function GroupPage() {
   const [expFormError, setExpFormError] = useState(null);
   const [recalculating, setRecalculating] = useState(false);
 
+  // donation form
+  const [donations, setDonations] = useState([]);
+  const [donationOrg, setDonationOrg] = useState("");
+  const [donationAmount, setDonationAmount] = useState("");
+  const [donationSubmitting, setDonationSubmitting] = useState(false);
+  const [donationError, setDonationError] = useState(null);
+
   useEffect(() => {
     if (!getToken()) navigate("/login")
   }, [navigate])
