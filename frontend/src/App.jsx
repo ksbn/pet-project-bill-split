@@ -4,7 +4,8 @@ import GroupPage from "./pages/GroupPage";
 import JoinPage from "./pages/JoinPage";
 import LoginPage from "./pages/LoginPage";
 import RegisterPage from "./pages/RegisterPage";
- 
+import DonationsPage from "./pages/DonationsPage";
+
 export default function App() {
   return (
     <BrowserRouter>
@@ -14,6 +15,7 @@ export default function App() {
         <Route path="/join/:inviteCode" element={<JoinPage />} />
         <Route path="/login" element={<LoginPage />} />
         <Route path="/register" element={<RegisterPage />} />
+        <Route path="/donations" element={<DonationsPage />} />
       </Routes>
     </BrowserRouter>
   );
