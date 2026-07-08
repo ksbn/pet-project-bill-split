@@ -163,6 +163,32 @@ export default function GroupPage() {
     }
   }
 
+  async function handleDonate(e) {
+  e.preventDefault();
+  if (!donationOrg || !donationAmount || !expPaidBy) {
+    setDonationError("Please select an organisation, enter an amount, and select who is paying.");
+    return;
+  }
+  const org = donations.find((d) => d.id === Number(donationOrg));
+  setDonationSubmitting(true);
+  setDonationError(null);
+  try {
+    const newExpense = await addExpense(groupId, {
+      title: `🎗️ Donation — ${org.org_name}`,
+      amount: Number(donationAmount),
+      paid_by: Number(expPaidBy),
+    });
+    setExpenses((prev) => [newExpense, ...prev]);
+    setDonationOrg("");
+    setDonationAmount("");
+    getSettlements(groupId).then(setSettlements).catch(() => {});
+  } catch {
+    setDonationError("Could not add donation. Please try again.");
+  } finally {
+    setDonationSubmitting(false);
+  }
+}
+
   async function handleConfirmSettlement(s) {
     if (!confirm(`Mark "${s.from} owes ${s.to} €${s.amount}" as paid?`)) return
     try {
