@@ -1,7 +1,6 @@
 import { useState, useEffect } from "react";
 import { useParams, useLocation, useNavigate } from "react-router-dom";
-import { getGroup, getGroupUsers, addUserToGroup, addExpense, getExpenses, getSettlements, recalculateSplits, deleteExpense, confirmSettlement, getConfirmedSettlements } from "../services/api";
-import { getToken } from "../services/token"
+import { getGroup, getGroupUsers, addUserToGroup, addExpense, getExpenses, getSettlements, recalculateSplits, deleteExpense, confirmSettlement, getConfirmedSettlements, getDonations } from "../services/api";
 
 export default function GroupPage() {
   const { groupId } = useParams();
