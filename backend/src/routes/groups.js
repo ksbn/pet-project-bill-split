@@ -15,9 +15,9 @@ groupRoutes.post('/', async (req, res) => {
   }
 })
 
-groupRoutes.get('/:inviteCode', async (req, res) => {
+groupRoutes.get('/id/:id', async (req, res) => {
   try {
-    const group = await getGroupByInviteCode(req.params.inviteCode)
+    const group = await getGroupById(req.params.id)
     if (!group) return res.status(404).json({ error: 'Group not found' })
     res.json(group)
   } catch (err) {
@@ -26,9 +26,9 @@ groupRoutes.get('/:inviteCode', async (req, res) => {
   }
 })
 
-groupRoutes.get('/id/:id', async (req, res) => {
+groupRoutes.get('/:inviteCode', async (req, res) => {
   try {
-    const group = await getGroupById(Number(req.params.id))
+    const group = await getGroupByInviteCode(req.params.inviteCode)
     if (!group) return res.status(404).json({ error: 'Group not found' })
     res.json(group)
   } catch (err) {
