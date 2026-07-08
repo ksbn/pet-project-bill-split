@@ -68,6 +68,12 @@ export default function GroupPage() {
     }).catch(() => setError("Could not load group data."))
   }, [groupId])
 
+  useEffect(() => {
+    getDonations()
+    .then(setDonations)
+    .catch(() => {});
+  }, []);
+
   async function handleAddUser(e) {
     e.preventDefault();
     if (!name.trim()) { setFormError("Name is required."); return; }
