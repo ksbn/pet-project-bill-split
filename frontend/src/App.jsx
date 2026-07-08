@@ -5,6 +5,7 @@ import JoinPage from "./pages/JoinPage";
 import LoginPage from "./pages/LoginPage";
 import RegisterPage from "./pages/RegisterPage";
 import Navbar from "./components/Navbar"; 
+import GroupViewPage from "./pages/GroupViewPage";
  
 export default function App() {
   return (
@@ -14,7 +15,7 @@ export default function App() {
       <Routes>
         <Route path="/" element={<HomePage />} />
         <Route path="/groups/:groupId" element={<GroupPage />} />
-        <Route path="/join/:inviteCode" element={<JoinPage />} />
+        <Route path="/join/:inviteCode" element={<GroupViewPage />} />
         <Route path="/login" element={<LoginPage />} />
         <Route path="/register" element={<RegisterPage />} />
       </Routes>
