@@ -15,21 +15,31 @@ const PORT = Number(process.env.PORT) || 3000;
 app.use(express.json());
 
 // Allow requests from the frontend dev server
+const ALLOWED_ORIGINS = [
+  "http://localhost:5173",
+  "https://pet-project-bill-split-ewvfv6q0p-ksbns-projects.vercel.app",
+  "https://pet-project-bill-split.vercel.app",
+]
+
 app.use((_req, res, next) => {
-  res.setHeader("Access-Control-Allow-Origin", "http://localhost:5173");
+  const origin = _req.headers.origin
+  if (ALLOWED_ORIGINS.includes(origin)) {
+    res.setHeader("Access-Control-Allow-Origin", origin)
+  }
   res.setHeader("Access-Control-Allow-Headers", "Content-Type, Authorization");
   res.setHeader("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
   next();
 });
 
-// Handle preflight requests
-app.options(/.*/, (_req, res) => {
-  res.setHeader("Access-Control-Allow-Origin", "http://localhost:5173");
+app.options(/.*/, (req, res) => {
+  const origin = req.headers.origin
+  if (ALLOWED_ORIGINS.includes(origin)) {
+    res.setHeader("Access-Control-Allow-Origin", origin)
+  }
   res.setHeader("Access-Control-Allow-Headers", "Content-Type, Authorization");
   res.setHeader("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
   res.sendStatus(204);
 });
-
 // Never let the browser cache API responses — avoids stale data after DB resets
 app.use("/api", (_req, res, next) => {
   res.setHeader("Cache-Control", "no-store");
