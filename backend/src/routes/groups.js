@@ -7,7 +7,7 @@ groupRoutes.post('/', async (req, res) => {
   try {
     const { name } = req.body
     if (!name) return res.status(400).json({ error: 'name is required' })
-    const group = await createGroup(name)
+    const group = await createGroup(name, req.account.id)
     res.status(201).json(group)
   } catch (err) {
     console.error(err)
