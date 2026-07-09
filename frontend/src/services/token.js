@@ -1,3 +1,14 @@
+export function getAccountId() {
+  const token = getToken()
+  if (!token) return null
+  try {
+    const payload = JSON.parse(atob(token.split('.')[1]))
+    return payload.id
+  } catch {
+    return null
+  }
+}
+
 const TOKEN_KEY = 'splitit_token'
 
 export function setToken(t) {
