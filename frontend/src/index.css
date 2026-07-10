@@ -1,77 +1,173 @@
 :root {
-  /* Colors */
-  --color-primary: #2563eb;
-  --color-primary-hover: #1d4ed8;
-  --color-primary-disabled: #93c5fd;
-
-  --color-text: #1a1a1a;
-  --color-text-secondary: #64748b;
-  --color-white: #ffffff;
-  --color-border: #d1d5db;
-
-  /* Typography */
-  --font-size-title: 3rem;
-  --font-size-subtitle: 1.2rem;
-  --font-size-body: 1rem;
-  --font-size-button: 1.1rem;
-
-  /* Spacing */
-  --space-sm: 1rem;
-  --space-md: 2rem;
-  --space-xl: 5rem;
-  --font-size-card-title: 1.4rem;
-
-  /* Radius */
-  --radius-sm: 8px;
-  --radius-md: 10px;
-
-  /* Widths */
-  --width-form: 420px;
-  --width-text: 600px;
-  --width-card: 480px;
+  --bg: #f0f4ff;
+  --glass: rgba(255, 255, 255, 0.55);
+  --glass-border: rgba(255, 255, 255, 0.75);
+  --glass-shadow: 0 8px 32px rgba(79, 110, 247, 0.12);
+  --primary: #4F6EF7;
+  --primary-dark: #3a57d4;
+  --accent: #7B5EA7;
+  --text: #1a1a2e;
+  --text-muted: #6b7280;
+  --radius: 20px;
+  --radius-sm: 10px;
+  --blur: blur(16px);
 }
 
-/* Base reset and global styles */
-*,
-*::before,
-*::after {
+*, *::before, *::after {
   box-sizing: border-box;
+  margin: 0;
+  padding: 0;
 }
 
 body {
-  margin: 0;
-  font-family:
-    system-ui,
-    -apple-system,
-    sans-serif;
-  line-height: 1.5;
-  color: #1a1a1a;
-  background: #fff;
+  font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', sans-serif;
+  background: var(--bg);
+  min-height: 100vh;
+  color: var(--text);
+  background-image:
+    radial-gradient(ellipse at 20% 20%, rgba(123, 94, 167, 0.12) 0%, transparent 60%),
+    radial-gradient(ellipse at 80% 80%, rgba(79, 110, 247, 0.12) 0%, transparent 60%);
 }
 
-.navbar {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-
-  padding: 18px 32px;
-
-  border-bottom: 1px solid #eee;
-
-  background: white;
+/* Glass card */
+.glass {
+  background: var(--glass);
+  backdrop-filter: var(--blur);
+  -webkit-backdrop-filter: var(--blur);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius);
+  box-shadow: var(--glass-shadow);
 }
 
-.logo {
-  font-size: 28px;
-  font-weight: bold;
-
-  text-decoration: none;
-  color: black;
+/* Buttons */
+.btn-primary {
+  background: linear-gradient(135deg, var(--primary), var(--accent));
+  color: white;
+  border: none;
+  border-radius: var(--radius-sm);
+  padding: 12px 28px;
+  font-size: 0.95rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: opacity 0.2s, transform 0.15s;
+  letter-spacing: 0.01em;
 }
 
-.app-container {
-  max-width: 1100px;
+.btn-primary:hover:not(:disabled) {
+  opacity: 0.88;
+  transform: translateY(-1px);
+}
+
+.btn-primary:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.btn-glass {
+  background: rgba(255, 255, 255, 0.45);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border: 1px solid rgba(255, 255, 255, 0.75);
+  border-radius: var(--radius-sm);
+  padding: 10px 20px;
+  font-size: 0.875rem;
+  font-weight: 500;
+  cursor: pointer;
+  color: var(--text);
+  transition: background 0.2s, transform 0.15s;
+}
+
+.btn-glass:hover:not(:disabled) {
+  background: rgba(255, 255, 255, 0.75);
+  transform: translateY(-1px);
+}
+
+.btn-danger {
+  background: rgba(255, 59, 48, 0.08);
+  border: 1px solid rgba(255, 59, 48, 0.2);
+  border-radius: var(--radius-sm);
+  padding: 6px 14px;
+  font-size: 0.8rem;
+  color: #c00;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.btn-danger:hover {
+  background: rgba(255, 59, 48, 0.15);
+}
+
+/* Inputs */
+.input {
+  background: rgba(255, 255, 255, 0.5);
+  border: 1px solid rgba(255, 255, 255, 0.8);
+  border-radius: var(--radius-sm);
+  padding: 11px 16px;
+  font-size: 0.95rem;
+  width: 100%;
+  outline: none;
+  color: var(--text);
+  transition: border-color 0.2s, box-shadow 0.2s;
+  font-family: inherit;
+}
+
+.input:focus {
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px rgba(79, 110, 247, 0.12);
+  background: rgba(255, 255, 255, 0.7);
+}
+
+.input::placeholder {
+  color: var(--text-muted);
+}
+
+select.input {
+  cursor: pointer;
+}
+
+/* Form label */
+.label {
+  display: block;
+  font-size: 0.85rem;
+  font-weight: 500;
+  color: var(--text-muted);
+  margin-bottom: 6px;
+  letter-spacing: 0.02em;
+}
+
+/* Page wrapper */
+.page {
+  max-width: 680px;
   margin: 0 auto;
-  padding: 2rem;
+  padding: 2rem 1.5rem;
 }
 
+/* Section spacing */
+.section {
+  margin-bottom: 1.25rem;
+}
+
+/* Divider */
+.divider {
+  border: none;
+  border-top: 1px solid rgba(255, 255, 255, 0.6);
+  margin: 1.5rem 0;
+}
+
+/* Tag/badge */
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(79, 110, 247, 0.1);
+  color: var(--primary);
+  border-radius: 20px;
+  padding: 4px 12px;
+  font-size: 0.8rem;
+  font-weight: 500;
+}
+
+/* App container */
+.app-container {
+  min-height: calc(100vh - 64px);
+}

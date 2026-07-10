@@ -18,3 +18,14 @@ export function authHeaders() {
     ? { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` }
     : { 'Content-Type': 'application/json' }
 }
+
+export function getAccountId() {
+  const token = getToken()
+  if (!token) return null
+  try {
+    const payload = JSON.parse(atob(token.split('.')[1]))
+    return payload.id
+  } catch {
+    return null
+  }
+}
