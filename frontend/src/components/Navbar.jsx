@@ -41,6 +41,9 @@ export default function Navbar() {
       <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
         {isLoggedIn ? (
           <>
+            <Link to="/my-groups" style={{ textDecoration: "none", color: "#6b7280", fontSize: "0.9rem", fontWeight: "500" }}>
+              My Groups
+            </Link>
             <Link to="/donations" style={{
               textDecoration: "none",
               color: "#6b7280",
