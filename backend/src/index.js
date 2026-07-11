@@ -39,6 +39,21 @@ app.use('/api/auth', authRoutes)
 app.use('/api/donations', donationRoutes)
 
 // Public group viewing routes
+
+app.get('/api/groups/my', requireAuth, async (req, res) => {
+  const { pool } = await import('./db/pool.js')
+  try {
+    const { rows } = await pool.query(
+      'SELECT * FROM groups WHERE account_id = $1 ORDER BY created_at DESC',
+      [req.account.id]
+    )
+    res.json(rows)
+  } catch (err) {
+    console.error(err)
+    res.status(500).json({ error: 'Failed to fetch groups' })
+  }
+})
+
 app.get('/api/groups/:inviteCode', async (req, res) => {
   const { getGroupByInviteCode } = await import('./services/groups.js')
   try {

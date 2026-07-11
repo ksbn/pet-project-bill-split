@@ -1,5 +1,6 @@
 import { Router } from 'express'
 import { createGroup, getGroupByInviteCode, getGroupById } from '../services/groups.js'
+import { pool } from '../db/pool.js'
 
 export const groupRoutes = Router()
 
@@ -34,5 +35,18 @@ groupRoutes.get('/:inviteCode', async (req, res) => {
   } catch (err) {
     console.error(err)
     res.status(500).json({ error: 'Failed to fetch group' })
+  }
+})
+
+groupRoutes.get('/my', async (req, res) => {
+  try {
+    const { rows } = await pool.query(
+      'SELECT * FROM groups WHERE account_id = $1 ORDER BY created_at DESC',
+      [req.account.id]
+    )
+    res.json(rows)
+  } catch (err) {
+    console.error(err)
+    res.status(500).json({ error: 'Failed to fetch groups' })
   }
 })
