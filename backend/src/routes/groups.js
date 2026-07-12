@@ -8,7 +8,9 @@ groupRoutes.post('/', async (req, res) => {
   try {
     const { name } = req.body
     if (!name) return res.status(400).json({ error: 'name is required' })
-    const group = await createGroup(name)
+    if (name.trim().length < 3) return res.status(400).json({ error: 'Group name must be at least 3 characters' })
+    if (name.trim().length > 100) return res.status(400).json({ error: 'Group name must be less than 100 characters' })
+    const group = await createGroup(name, req.account.id)
     res.status(201).json(group)
   } catch (err) {
     console.error(err)

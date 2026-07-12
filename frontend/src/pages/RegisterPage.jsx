@@ -2,6 +2,7 @@ import { useState } from "react"
 import { useNavigate, Link } from "react-router-dom"
 import { register } from "../services/api"
 import { setToken } from "../services/token"
+import { validateEmail, validatePassword } from "../utils/validate"
 
 export default function RegisterPage() {
   const navigate = useNavigate()
@@ -13,6 +14,13 @@ export default function RegisterPage() {
 
   async function handleRegister(e) {
     e.preventDefault()
+
+    const emailError = validateEmail(email)
+    if (emailError) { setError(emailError); return }
+  
+    const passwordError = validatePassword(password)
+    if (passwordError) { setError(passwordError); return }
+  
     setLoading(true)
     setError(null)
     try {

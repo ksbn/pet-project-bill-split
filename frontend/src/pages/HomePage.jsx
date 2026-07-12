@@ -2,6 +2,7 @@ import { useState, useEffect } from "react"
 import { useNavigate, Link } from "react-router-dom"
 import { createGroup } from "../services/api"
 import { getToken, getAccountId } from "../services/token"
+import { validateGroupName } from "../utils/validate"
 
 export default function HomePage() {
   const navigate = useNavigate()
@@ -19,7 +20,8 @@ export default function HomePage() {
       navigate("/register")
       return
     }
-    if (!groupName.trim()) return
+    const nameError = validateGroupName(groupName)
+    if (nameError) { setError(nameError); return }
     setLoading(true)
     setError(null)
     try {
