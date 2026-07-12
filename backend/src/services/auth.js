@@ -4,8 +4,13 @@ import { pool } from '../db/pool.js'
 
 const JWT_SECRET = process.env.JWT_SECRET ?? 'dev-secret-change-in-production'
 const SALT_ROUNDS = 10
+const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
 
 export async function register(name, email, password) {
+  if (!EMAIL_REGEX.test(email)) {
+    throw new Error('Invalid email address')
+  }
+
   // Check if email already exists
   const { rows: existing } = await pool.query(
     'SELECT id FROM accounts WHERE email = $1',
@@ -31,6 +36,9 @@ export async function register(name, email, password) {
 }
 
 export async function login(email, password) {
+  if (!EMAIL_REGEX.test(email)) {
+    throw new Error('Invalid email or password')
+  }
   // Find account
   const { rows } = await pool.query(
     'SELECT * FROM accounts WHERE email = $1',
