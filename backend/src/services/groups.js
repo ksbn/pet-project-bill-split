@@ -4,7 +4,7 @@ import crypto from 'crypto'
 export async function createGroup(name, account_id) {
   const invite_code = crypto.randomUUID().slice(0, 8)
   const { rows } = await pool.query(
-    'INSERT INTO groups (name, invite_code) VALUES ($1, $2, $3) RETURNING *',
+    'INSERT INTO groups (name, invite_code, account_id) VALUES ($1, $2, $3) RETURNING *',
     [name, invite_code, account_id]
   )
   return rows[0]
