@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { useParams, useLocation, useNavigate } from "react-router-dom";
 import { getToken } from "../services/token";
 import { getGroup, getGroupUsers, addUserToGroup, addExpense, getExpenses, getSettlements, recalculateSplits, deleteExpense, confirmSettlement, getConfirmedSettlements, getDonations } from "../services/api";
+import { validateMemberName, validateEmail, validateAmount } from "../utils/validate";
 
 export default function GroupPage() {
   const { groupId } = useParams();
@@ -77,7 +78,13 @@ export default function GroupPage() {
 
   async function handleAddUser(e) {
     e.preventDefault();
-    if (!name.trim()) { setFormError("Name is required."); return; }
+    
+    const nameError = validateMemberName(name)
+    if (nameError) { setFormError(nameError); return }
+  
+    const emailError = validateEmail(email)
+    if (emailError) { setFormError(emailError); return }
+
     setSubmitting(true);
     setFormError(null);
     try {
@@ -99,10 +106,13 @@ export default function GroupPage() {
 
   async function handleAddExpense(e) {
     e.preventDefault();
-    if (!expTitle.trim() || !expAmount || !expPaidBy) {
-      setExpFormError("All fields are required.");
-      return;
-    }
+
+    if (!expTitle.trim()) { setExpFormError('Title is required'); return }
+  
+    const amountError = validateAmount(expAmount)
+    if (amountError) { setExpFormError(amountError); return }
+  
+    if (!expPaidBy) { setExpFormError('Please select who paid'); return }
 
     let splits = null;
     if (splitMode === "custom") {
@@ -166,13 +176,18 @@ export default function GroupPage() {
 
   async function handleDonate(e) {
   e.preventDefault();
-  if (!donationOrg || !donationAmount || !expPaidBy) {
-    setDonationError("Please select an organisation, enter an amount, and select who is paying.");
-    return;
-  }
+ 
+  if (!donationOrg) { setDonationError("Please select an organisation."); return }
+  
+  const amountError = validateAmount(donationAmount)
+  if (amountError) { setDonationError(amountError); return }
+  
+  if (!expPaidBy) { setDonationError("Please select who is paying."); return }
+  
   const org = donations.find((d) => d.id === Number(donationOrg));
   setDonationSubmitting(true);
   setDonationError(null);
+ 
   try {
     const newExpense = await addExpense(groupId, {
       title: `🎗️ Donation — ${org.org_name}`,
