@@ -9,12 +9,16 @@ authRoutes.post('/register', async (req, res) => {
     if (!name || !email || !password) {
       return res.status(400).json({ error: 'name, email and password are required' })
     }
+
     if (password.length < 6) {
       return res.status(400).json({ error: 'Password must be at least 6 characters' })
     }
     const { account, token } = await register(name, email, password)
     res.status(201).json({ account, token })
   } catch (err) {
+    if (err.message === 'Invalid email address') {
+      return res.status(400).json({ error: err.message })
+    }
     if (err.message === 'Email already registered') {
       return res.status(409).json({ error: err.message })
     }
