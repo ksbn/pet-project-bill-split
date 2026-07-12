@@ -42,12 +42,12 @@ export default function JoinPage() {
     setFormError(null);
     try {
       const res = await joinGroupByInviteCode(inviteCode, {name: name.trim()});
-      const groupId = res?.id || group?.id;
+      const groupId = res?.group_id || group?.id;
       if (!groupId) {
       throw new Error("Missing group ID after joining");
     }
       navigate(`/groups/${groupId}`);
-    } catch {
+    } catch (err) {
       console.error(err);
       setFormError("Could not join group. Please try again.");
     } finally {
