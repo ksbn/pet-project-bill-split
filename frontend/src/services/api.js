@@ -153,3 +153,17 @@ export async function getDonations() {
   if (!res.ok) throw new Error("Failed to fetch donations");
   return res.json();
 }
+
+export async function recordDonation(groupId, orgName, amount, paidBy) {
+  const res = await fetch(`${BASE}/groups/${groupId}/expenses`, {
+    method: 'POST',
+    headers: authHeaders(),
+    body: JSON.stringify({
+      title: `🎗️ Donation — ${orgName}`,
+      amount: Number(amount),
+      paid_by: Number(paidBy),
+    }),
+  })
+  if (!res.ok) throw new Error('Failed to record donation')
+  return res.json()
+}
