@@ -8,7 +8,6 @@ export default function DonationsPage() {
   const [donations, setDonations] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [donated, setDonated] = useState({});
 
   useEffect(() => {
     if (!getToken()) { navigate("/login"); return; }
@@ -17,10 +16,6 @@ export default function DonationsPage() {
       .catch(() => setError("Could not load organisations."))
       .finally(() => setLoading(false));
   }, [navigate]);
-
-  function handleDonate(id) {
-    setDonated((prev) => ({ ...prev, [id]: true }));
-  }
 
   if (loading) return <div className="page" style={{ paddingTop: "3rem", color: "var(--text-muted)" }}>Loading...</div>;
   if (error) return <div className="page" style={{ paddingTop: "3rem", color: "#c00" }}>{error}</div>;
@@ -32,7 +27,7 @@ export default function DonationsPage() {
           Donate Together
         </h1>
         <p style={{ color: "var(--text-muted)" }}>
-          Choose a charity and donate as a group.
+          Choose a charity and donate as a group from within one of your groups.
         </p>
       </div>
 
@@ -53,14 +48,15 @@ export default function DonationsPage() {
                     </p>
                   )}
                 </div>
-                <button
+                <a
                   className="btn-primary"
-                  onClick={() => handleDonate(org.id)}
-                  disabled={donated[org.id]}
-                  style={{ flexShrink: 0, minWidth: "110px" }}
+                  href={org.org_url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  style={{ flexShrink: 0, minWidth: "110px", textAlign: "center", textDecoration: "none", display: "inline-block" }}
                 >
-                  {donated[org.id] ? "Donated" : "Donate"}
-                </button>
+                  More Info
+                </a>
               </div>
             </div>
           ))}
