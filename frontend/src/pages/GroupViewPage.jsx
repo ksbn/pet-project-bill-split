@@ -1,119 +1,127 @@
-import { useState, useEffect } from "react"
-import { useParams } from "react-router-dom"
+import { useState, useEffect } from "react";
+import { useParams, Link } from "react-router-dom";
 
-const BASE = "/api"
+const BASE = "/api";
 
 export default function GroupViewPage() {
-  const { inviteCode } = useParams()
-  const [group, setGroup] = useState(null)
-  const [users, setUsers] = useState([])
-  const [expenses, setExpenses] = useState([])
-  const [settlements, setSettlements] = useState([])
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState(null)
+  const { inviteCode } = useParams();
+  const [group, setGroup] = useState(null);
+  const [users, setUsers] = useState([]);
+  const [expenses, setExpenses] = useState([]);
+  const [settlements, setSettlements] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
   useEffect(() => {
     async function loadGroup() {
       try {
-        const groupRes = await fetch(`${BASE}/groups/${inviteCode}`)
-        if (!groupRes.ok) throw new Error('Group not found')
-        const group = await groupRes.json()
-        setGroup(group)
+        const groupRes = await fetch(`${BASE}/groups/${inviteCode}`);
+        if (!groupRes.ok) throw new Error("Group not found");
+        const group = await groupRes.json();
+        setGroup(group);
 
         const [users, expenses, settlements] = await Promise.all([
-          fetch(`${BASE}/groups/${group.id}/users`).then(r => r.json()),
-          fetch(`${BASE}/groups/${group.id}/expenses`).then(r => r.json()),
-          fetch(`${BASE}/groups/${group.id}/settlements`).then(r => r.json()),
-        ])
+          fetch(`${BASE}/groups/${group.id}/users`).then((r) => r.json()),
+          fetch(`${BASE}/groups/${group.id}/expenses`).then((r) => r.json()),
+          fetch(`${BASE}/groups/${group.id}/settlements`).then((r) => r.json()),
+        ]);
 
-        setUsers(users)
-        setExpenses(expenses)
-        setSettlements(settlements)
+        setUsers(users);
+        setExpenses(expenses);
+        setSettlements(settlements);
       } catch (err) {
-        setError(err.message || 'Could not load group.')
+        setError(err.message || "Could not load group.");
       } finally {
-        setLoading(false)
+        setLoading(false);
       }
     }
+    loadGroup();
+  }, [inviteCode]);
 
-    loadGroup()
-  }, [inviteCode])
-
-  if (loading) return <p style={{ padding: "2rem" }}>Loading group…</p>
-  if (error) return <p style={{ padding: "2rem", color: "red" }}>{error}</p>
+  if (loading) return <div className="page" style={{ paddingTop: "3rem", color: "var(--text-muted)" }}>Loading group...</div>;
+  if (error) return <div className="page" style={{ paddingTop: "3rem", color: "#c00" }}>{error}</div>;
 
   return (
-    <div style={{ maxWidth: "600px", margin: "0 auto", padding: "2rem" }}>
-      <section>
-        <h1>{group.name}</h1>
-        <p style={{ color: "#666", fontSize: "0.9em" }}>
-          Invite code: <code style={{ background: "#f0f0f0", padding: "2px 6px", borderRadius: "4px" }}>{group.invite_code}</code>
-        </p>
-      </section>
+    <div className="page">
 
-      <hr style={{ margin: "1.5rem 0" }} />
+      {/* Group info */}
+      <div className="glass section" style={{ padding: "1.5rem" }}>
+        <h1 style={{ fontSize: "1.75rem", fontWeight: "800", marginBottom: "0.5rem" }}>{group.name}</h1>
+        <div style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "1rem" }}>
+          <span className="label" style={{ margin: 0 }}>Invite code:</span>
+          <span className="badge">{group.invite_code}</span>
+        </div>
+        <Link to="/login" style={{ fontSize: "0.9em", color: "var(--primary)" }}>
+          Login to manage this group
+        </Link>
+      </div>
 
-      <section>
-        <h2>Members</h2>
-        {users.length === 0 && <p style={{ color: "#888" }}>No members yet.</p>}
-        <ul style={{ listStyle: "none", padding: 0 }}>
+      {/* Members */}
+      <div className="glass section" style={{ padding: "1.5rem" }}>
+        <h2 style={{ marginBottom: "1rem" }}>Members</h2>
+        {users.length === 0 && <p style={{ color: "var(--text-muted)" }}>No members yet.</p>}
+        <ul style={{ listStyle: "none", padding: 0, display: "flex", flexDirection: "column", gap: "0.5rem" }}>
           {users.map((user) => (
-            <li key={user.id} style={{ padding: "8px 12px", border: "1px solid #ddd", borderRadius: "6px", marginBottom: "8px" }}>
-              <strong>{user.name}</strong>
-              {user.email && (
-                <span style={{ marginLeft: "8px", color: "#666", fontSize: "0.9em" }}>{user.email}</span>
-              )}
+            <li key={user.id} style={{ display: "flex", alignItems: "center", gap: "12px" }}>
+              <div style={{
+                width: "36px", height: "36px", borderRadius: "50%",
+                background: "linear-gradient(135deg, var(--primary), var(--accent))",
+                color: "white", display: "flex", alignItems: "center", justifyContent: "center",
+                fontWeight: "700", fontSize: "0.85rem", flexShrink: 0,
+              }}>
+                {user.name.charAt(0).toUpperCase()}
+              </div>
+              <div>
+                <div style={{ fontWeight: "600" }}>{user.name}</div>
+                {user.email && <div style={{ fontSize: "0.8rem", color: "var(--text-muted)" }}>{user.email}</div>}
+              </div>
             </li>
           ))}
         </ul>
-      </section>
+      </div>
 
-      <hr style={{ margin: "1.5rem 0" }} />
-
-      <section>
-        <h2>Expenses</h2>
-        {expenses.length === 0 && <p style={{ color: "#888" }}>No expenses yet.</p>}
-        <ul style={{ listStyle: "none", padding: 0 }}>
+      {/* Expenses */}
+      <div className="glass section" style={{ padding: "1.5rem" }}>
+        <h2 style={{ marginBottom: "1rem" }}>Expenses</h2>
+        {expenses.length === 0 && <p style={{ color: "var(--text-muted)" }}>No expenses yet.</p>}
+        <ul style={{ listStyle: "none", padding: 0, display: "flex", flexDirection: "column", gap: "0.5rem" }}>
           {expenses.map((exp) => {
-            const paidBy = users.find((u) => u.id === exp.paid_by)
-            const share = users.length > 0 ? (Number(exp.amount) / users.length).toFixed(2) : "—"
+            const paidBy = users.find((u) => u.id === exp.paid_by);
+            const share = users.length > 0 ? (Number(exp.amount) / users.length).toFixed(2) : "—";
             return (
-              <li key={exp.id} style={{ padding: "8px 12px", border: "1px solid #ddd", borderRadius: "6px", marginBottom: "8px" }}>
-                <strong>{exp.title}</strong> — €{exp.amount}
-                <span style={{ marginLeft: "8px", color: "#666", fontSize: "0.9em" }}>
-                  paid by {paidBy?.name ?? "unknown"}
-                </span>
-                <div style={{ fontSize: "0.85em", color: "#888", marginTop: "4px" }}>
-                  €{share} per person
+              <li key={exp.id} className="glass" style={{ padding: "0.75rem 1rem" }}>
+                <div style={{ fontWeight: "600" }}>{exp.title} — €{exp.amount}</div>
+                <div style={{ fontSize: "0.85em", color: "var(--text-muted)" }}>
+                  paid by {paidBy?.name ?? "unknown"} · €{share} per person
                 </div>
               </li>
-            )
+            );
           })}
         </ul>
-      </section>
+      </div>
 
-      <hr style={{ margin: "1.5rem 0" }} />
-
-      <section>
-        <h2>Settlements</h2>
+      {/* Settlements */}
+      <div className="glass section" style={{ padding: "1.5rem" }}>
+        <h2 style={{ marginBottom: "1rem" }}>Settlements</h2>
         {settlements.length === 0 ? (
-          <p style={{ color: "#888" }}>Everyone is settled up! 🎉</p>
+          <p style={{ color: "var(--text-muted)" }}>Everyone is settled up!</p>
         ) : (
-          <ul style={{ listStyle: "none", padding: 0 }}>
+          <ul style={{ listStyle: "none", padding: 0, display: "flex", flexDirection: "column", gap: "0.5rem" }}>
             {settlements.map((s, i) => (
-              <li key={i} style={{ padding: "8px 12px", border: "1px solid #ddd", borderRadius: "6px", marginBottom: "8px", display: "flex", alignItems: "center", gap: "8px" }}>
+              <li key={i} className="glass" style={{ padding: "0.75rem 1rem", display: "flex", alignItems: "center", gap: "8px" }}>
                 <div style={{ flex: 1 }}>
                   <strong>{s.from}</strong>
-                  <span style={{ color: "#666" }}> owes </span>
+                  <span style={{ color: "var(--text-muted)" }}> owes </span>
                   <strong>{s.to}</strong>
-                  <span style={{ color: "#2a7a2a", fontWeight: "bold" }}> €{Number(s.amount).toFixed(2)}</span>
+                  <span style={{ color: "var(--primary)", fontWeight: "bold" }}> €{Number(s.amount).toFixed(2)}</span>
                 </div>
                 {s.revolut_link && (
                   <a
+                    className="btn-primary"
                     href={s.revolut_link}
                     target="_blank"
                     rel="noopener noreferrer"
-                    style={{ padding: "4px 10px", background: "#0075eb", color: "white", borderRadius: "6px", textDecoration: "none", fontSize: "0.85em", whiteSpace: "nowrap" }}
+                    style={{ textDecoration: "none", fontSize: "0.85em", padding: "6px 12px" }}
                   >
                     Pay via Revolut
                   </a>
@@ -122,7 +130,8 @@ export default function GroupViewPage() {
             ))}
           </ul>
         )}
-      </section>
+      </div>
+
     </div>
-  )
+  );
 }

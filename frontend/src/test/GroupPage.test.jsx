@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
-import { render, screen, waitFor, within } from '@testing-library/react'
+import { render, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { MemoryRouter, Route, Routes } from 'react-router-dom'
 import GroupPage from '../pages/GroupPage'
@@ -97,8 +97,8 @@ describe('GroupPage — loading group data', () => {
 
   it('lists members once loaded', async () => {
     renderPage()
-    expect(await screen.findByText('Alice', { selector: 'strong' })).toBeInTheDocument()
-    expect(screen.getByText('Bob', { selector: 'strong' })).toBeInTheDocument()
+    expect(await screen.findByText('Alice', { selector: 'div' })).toBeInTheDocument()
+    expect(screen.getByText('Bob', { selector: 'div' })).toBeInTheDocument()
     expect(screen.getByText('alice@test.com')).toBeInTheDocument()
   })
 })
@@ -121,7 +121,7 @@ describe('GroupPage — add member', () => {
         revolut_link: null,
       })
     })
-    expect(await screen.findByText('Carol', { selector: 'strong' })).toBeInTheDocument()
+    expect(await screen.findByText('Carol', { selector: 'div' })).toBeInTheDocument()
     expect(screen.getByPlaceholderText('e.g. Alice')).toHaveValue('')
   })
 
@@ -172,7 +172,7 @@ describe('GroupPage — add expense', () => {
         splits: null,
       })
     })
-    expect(await screen.findByText('Dinner')).toBeInTheDocument()
+    expect(await screen.findByText(/Dinner/)).toBeInTheDocument()
   })
 
   it('requires a title, amount, and payer before submitting', async () => {
@@ -212,14 +212,14 @@ describe('GroupPage — add expense', () => {
     const user = userEvent.setup()
     renderPage()
 
-    expect(await screen.findByText('Taxi')).toBeInTheDocument()
+    expect(await screen.findByText(/Taxi/)).toBeInTheDocument()
     await user.click(screen.getByRole('button', { name: /delete/i }))
 
     await waitFor(() => {
       expect(deleteExpense).toHaveBeenCalledWith('1', 5)
     })
     await waitFor(() => {
-      expect(screen.queryByText('Taxi')).not.toBeInTheDocument()
+      expect(screen.queryByText(/Taxi/)).not.toBeInTheDocument()
     })
   })
 
@@ -229,18 +229,18 @@ describe('GroupPage — add expense', () => {
     const user = userEvent.setup()
     renderPage()
 
-    expect(await screen.findByText('Taxi')).toBeInTheDocument()
+    expect(await screen.findByText(/Taxi/)).toBeInTheDocument()
     await user.click(screen.getByRole('button', { name: /delete/i }))
 
     expect(deleteExpense).not.toHaveBeenCalled()
-    expect(screen.getByText('Taxi')).toBeInTheDocument()
+    expect(screen.getByText(/Taxi/)).toBeInTheDocument()
   })
 })
 
 describe('GroupPage — settlements', () => {
   it('shows "settled up" message when there are no settlements', async () => {
     renderPage()
-    expect(await screen.findByText('Everyone is settled up! 🎉')).toBeInTheDocument()
+    expect(await screen.findByText(/everyone is settled up/i)).toBeInTheDocument()
   })
 
   it('lists settlements and confirms one as paid', async () => {
@@ -256,7 +256,7 @@ describe('GroupPage — settlements', () => {
     await waitFor(() => {
       expect(confirmSettlement).toHaveBeenCalledWith('1', 'Bob', 'Alice', 45)
     })
-    expect(await screen.findByText('✅ Paid')).toBeInTheDocument()
+    expect(await screen.findByText('Paid')).toBeInTheDocument()
   })
 
   it('recalculates splits when the button is clicked', async () => {

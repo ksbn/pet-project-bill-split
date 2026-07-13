@@ -7,6 +7,7 @@ import RegisterPage from "./pages/RegisterPage";
 import Navbar from "./components/Navbar"; 
 import GroupViewPage from "./pages/GroupViewPage";
 import MyGroupsPage from "./pages/MyGroupsPage";
+import DonationsPage from './pages/DonationsPage';
  
 export default function App() {
   return (
@@ -20,6 +21,7 @@ export default function App() {
         <Route path="/login" element={<LoginPage />} />
         <Route path="/register" element={<RegisterPage />} />
         <Route path="/my-groups" element={<MyGroupsPage />} />
+        <Route path="/donations" element={<DonationsPage />} />
       </Routes>
       </main>
     </BrowserRouter>

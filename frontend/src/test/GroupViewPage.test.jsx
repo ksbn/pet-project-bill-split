@@ -35,7 +35,7 @@ describe('GroupViewPage', () => {
   it('shows a loading state initially', () => {
     global.fetch = vi.fn(() => new Promise(() => {})) // never resolves
     renderPage()
-    expect(screen.getByText('Loading group…')).toBeInTheDocument()
+    expect(screen.getByText(/loading group/i)).toBeInTheDocument()
   })
 
   it('shows group name and invite code once loaded', async () => {
@@ -43,6 +43,13 @@ describe('GroupViewPage', () => {
     renderPage()
     expect(await screen.findByText('Trip to Spain')).toBeInTheDocument()
     expect(screen.getByText('ABC123')).toBeInTheDocument()
+  })
+
+  it('shows a login link for group management', async () => {
+    mockFetchSequence()
+    renderPage()
+    const loginLink = await screen.findByRole('link', { name: /login to manage this group/i })
+    expect(loginLink).toHaveAttribute('href', '/login')
   })
 
   it('shows an error message when the invite code is invalid', async () => {
@@ -64,12 +71,15 @@ describe('GroupViewPage', () => {
     expect(screen.getByText('No members yet.')).toBeInTheDocument()
   })
 
-  it('lists members once loaded', async () => {
+  it('lists members with their avatar initial and email', async () => {
     mockFetchSequence({ users: baseUsers })
     renderPage()
-    expect(await screen.findByText('Alice', { selector: 'strong' })).toBeInTheDocument()
-    expect(screen.getByText('Bob', { selector: 'strong' })).toBeInTheDocument()
+    expect(await screen.findByText('Alice')).toBeInTheDocument()
+    expect(screen.getByText('Bob')).toBeInTheDocument()
     expect(screen.getByText('alice@test.com')).toBeInTheDocument()
+    // avatar initials
+    expect(screen.getByText('A')).toBeInTheDocument()
+    expect(screen.getByText('B')).toBeInTheDocument()
   })
 
   it('shows an empty state when there are no expenses', async () => {
@@ -86,10 +96,10 @@ describe('GroupViewPage', () => {
     })
     renderPage()
 
-    expect(await screen.findByText('Dinner')).toBeInTheDocument()
+    expect(await screen.findByText(/Dinner/)).toBeInTheDocument()
+    expect(screen.getByText(/€100/)).toBeInTheDocument()
     expect(screen.getByText(/paid by Alice/)).toBeInTheDocument()
-    // 100 / 2 members = 50.00 per person
-    expect(screen.getByText('€50.00 per person')).toBeInTheDocument()
+    expect(screen.getByText(/€50\.00 per person/)).toBeInTheDocument()
   })
 
   it('shows "unknown" as payer when the paying user cannot be found', async () => {
@@ -99,14 +109,14 @@ describe('GroupViewPage', () => {
     })
     renderPage()
 
-    expect(await screen.findByText('Taxi')).toBeInTheDocument()
+    expect(await screen.findByText(/Taxi/)).toBeInTheDocument()
     expect(screen.getByText(/paid by unknown/)).toBeInTheDocument()
   })
 
   it('shows "settled up" message when there are no settlements', async () => {
     mockFetchSequence({ users: baseUsers, settlements: [] })
     renderPage()
-    expect(await screen.findByText('Everyone is settled up! 🎉')).toBeInTheDocument()
+    expect(await screen.findByText(/everyone is settled up/i)).toBeInTheDocument()
   })
 
   it('lists settlements with amounts', async () => {
@@ -117,7 +127,7 @@ describe('GroupViewPage', () => {
     renderPage()
 
     expect(await screen.findByText(/owes/)).toBeInTheDocument()
-    expect(screen.getByText('€45.00')).toBeInTheDocument()
+    expect(screen.getByText(/€45\.00/)).toBeInTheDocument()
   })
 
   it('shows a "Pay via Revolut" link when a settlement has a revolut_link', async () => {
