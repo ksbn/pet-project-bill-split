@@ -45,13 +45,6 @@ describe('GroupViewPage', () => {
     expect(screen.getByText('ABC123')).toBeInTheDocument()
   })
 
-  it('shows a login link for group management', async () => {
-    mockFetchSequence()
-    renderPage()
-    const loginLink = await screen.findByRole('link', { name: /login to manage this group/i })
-    expect(loginLink).toHaveAttribute('href', '/login')
-  })
-
   it('shows an error message when the invite code is invalid', async () => {
     mockFetchSequence({ groupOk: false })
     renderPage()

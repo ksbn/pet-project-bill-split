@@ -51,9 +51,6 @@ export default function GroupViewPage() {
           <span className="label" style={{ margin: 0 }}>Invite code:</span>
           <span className="badge">{group.invite_code}</span>
         </div>
-        <Link to="/login" style={{ fontSize: "0.9em", color: "var(--primary)" }}>
-          Login to manage this group
-        </Link>
       </div>
 
       {/* Members */}

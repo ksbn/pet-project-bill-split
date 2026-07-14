@@ -167,7 +167,7 @@ export default function GroupPage() {
     setDonationError(null);
     try {
       const newExpense = await addExpense(groupId, {
-        title: `Donation - ${org.org_name}`,
+        title: `🎗️ Donation - ${org.org_name}`,
         amount: Number(donationAmount),
         paid_by: Number(expPaidBy),
       });
@@ -211,26 +211,68 @@ export default function GroupPage() {
           <button
             className="btn-glass"
             onClick={() => { navigator.clipboard.writeText(`${window.location.origin}/join/${group.invite_code}`); alert("Link copied!"); }}
+            style={{
+              background: "rgba(240, 244, 255, 0.6)",
+              color: "#324bb8", // Brand Blue
+              border: "1px solid rgba(79, 110, 247, 0.2)",
+              display: "inline-flex",
+              alignItems: "center",
+              gap: "6px",
+              padding: "8px 14px",
+              borderRadius: "8px",
+              fontSize: "0.85rem",
+              fontWeight: "600",
+              cursor: "pointer",
+              transition: "all 0.2s ease"
+            }}
           >
-            Copy invite link
+            📋 Copy invite link
           </button>
           <a
             className="btn-glass"
             href={whatsappUrl}
             target="_blank"
             rel="noopener noreferrer"
-            style={{ background: "#25D366", color: "white", border: "none", textDecoration: "none", display: "inline-flex", alignItems: "center" }}
+            style={{ 
+              background: "#cef6d2", // Soft pastel green (cleaner than bright neon WhatsApp green)
+              color: "#308734", // Dark green text
+              border: "1px solid rgba(46, 125, 50, 0.15)",
+              textDecoration: "none",
+              display: "inline-flex",
+              alignItems: "center",
+              gap: "6px",
+              padding: "8px 14px",
+              borderRadius: "8px",
+              fontSize: "0.85rem",
+              fontWeight: "600",
+              cursor: "pointer",
+              transition: "all 0.2s ease"
+             }}
           >
-            WhatsApp
+            💬 WhatsApp
           </a>
           <a
             className="btn-glass"
             href={telegramUrl}
             target="_blank"
             rel="noopener noreferrer"
-            style={{ background: "#0088cc", color: "white", border: "none", textDecoration: "none", display: "inline-flex", alignItems: "center" }}
+            style={{ 
+              background: "#E1F5FE", // Soft pastel Telegram blue
+              color: "#0288D1", // Dark blue text
+              border: "1px solid rgba(2, 136, 209, 0.15)",
+              textDecoration: "none",
+              display: "inline-flex",
+              alignItems: "center",
+              gap: "6px",
+              padding: "8px 14px",
+              borderRadius: "8px",
+              fontSize: "0.85rem",
+              fontWeight: "600",
+              cursor: "pointer",
+              transition: "all 0.2s ease"
+             }}
           >
-            Telegram
+            ✈️ Telegram
           </a>
         </div>
       </div>
@@ -361,8 +403,25 @@ export default function GroupPage() {
       {/* Settlements */}
       <div className="glass section" style={{ padding: "1.5rem" }}>
         <h2 style={{ marginBottom: "1rem" }}>Settlements</h2>
-        <button className="btn-glass" onClick={handleRecalculate} disabled={recalculating} style={{ marginBottom: "1rem" }}>
-          {recalculating ? "Recalculating..." : "Recalculate Splits"}
+        <button 
+          onClick={handleRecalculate} disabled={recalculating} 
+          style={{ 
+            background: "rgba(240, 244, 255, 0.4)", 
+            color: "#293b89", 
+            border: "1px solid rgba(79, 110, 247, 0.15)",
+            display: "inline-flex",
+            alignItems: "center",
+            gap: "6px",
+            padding: "6px 12px",
+            borderRadius: "6px",
+            fontSize: "0.8rem", // Slightly smaller size since it's a utility action
+            fontWeight: "600",
+            cursor: "pointer",
+            transition: "all 0.2s ease",
+            marginBottom: "1rem"
+         }}
+        >
+          {recalculating ? "🔄 Recalculating..." : " 🔄 Recalculate Splits"}
         </button>
         {settlements.length === 0 ? (
           <p style={{ color: "var(--text-muted)" }}>Everyone is settled up!</p>
@@ -388,11 +447,26 @@ export default function GroupPage() {
                         Pay via Revolut
                       </a>
                     )}
-                    {!isConfirmed && (
-                      <button className="btn-glass" onClick={() => handleConfirmSettlement(s)} style={{ fontSize: "0.85em", padding: "6px 12px" }}>
-                        Mark as paid
-                      </button>
-                    )}
+                      {!isConfirmed && (
+                        <button 
+                          className="btn-glass" 
+                          onClick={() => handleConfirmSettlement(s)} 
+                          style={{ 
+                            background: "#ffffff", 
+                            color: "#4F6EF7", 
+                            border: "1px solid #4F6EF7", 
+                            textDecoration: "none", 
+                            display: "inline-flex", 
+                            alignItems: "center", 
+                            padding: "6px 12px",
+                            borderRadius: "6px", // Keeps it clean and rounded
+                            fontWeight: "500",
+                            cursor: "pointer"
+                          }}
+                        >
+                          Mark as paid
+                        </button>
+                      )}
                   </div>
                 </li>
               );
@@ -403,7 +477,7 @@ export default function GroupPage() {
 
       {/* Donate Together */}
       <div className="glass section" style={{ padding: "1.5rem" }}>
-        <h2 style={{ marginBottom: "0.5rem" }}>Donate Together</h2>
+        <h2 style={{ marginBottom: "0.5rem" }}>💚 Donate Together</h2>
         <p style={{ color: "var(--text-muted)", fontSize: "0.9em", marginBottom: "1rem" }}>
           Choose a charity — the cost splits evenly among all members.
         </p>
