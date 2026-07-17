@@ -359,7 +359,7 @@ export default function GroupPage() {
           </div>
           <div>
             <label className="label">Paid by *</label>
-            <select className="input" value={expPaidBy} onChange={(e) => setExpPaidBy(e.target.value)}>
+            <select className="input" aria-label="Paid by" value={expPaidBy} onChange={(e) => setExpPaidBy(e.target.value)}>
               <option value="">Select member</option>
               {users.map((u) => <option key={u.id} value={u.id}>{u.name}</option>)}
             </select>
@@ -494,7 +494,7 @@ export default function GroupPage() {
         <form onSubmit={handleDonate} style={{ display: "flex", flexDirection: "column", gap: "0.75rem" }}>
           <div>
             <label className="label">Organisation *</label>
-            <select className="input" value={donationOrg} onChange={(e) => setDonationOrg(e.target.value)}>
+            <select className="input" aria-label="Organisation" value={donationOrg} onChange={(e) => setDonationOrg(e.target.value)}>
               <option value="">Select organisation</option>
               {donations.map((d) => <option key={d.id} value={d.id}>{d.org_name}</option>)}
             </select>
@@ -505,7 +505,7 @@ export default function GroupPage() {
           </div>
           <div>
             <label className="label">Paid by *</label>
-            <select className="input" value={expPaidBy} onChange={(e) => setExpPaidBy(e.target.value)}>
+            <select className="input" aria-label="Paid by" value={expPaidBy} onChange={(e) => setExpPaidBy(e.target.value)}>
               <option value="">Select member</option>
               {users.map((u) => <option key={u.id} value={u.id}>{u.name}</option>)}
             </select>
