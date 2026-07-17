@@ -467,6 +467,7 @@ export default function GroupPage() {
                             border: "1px solid #4F6EF7", 
                             textDecoration: "none", 
                             display: "inline-flex", 
+                            flexWrap: "wrap",
                             alignItems: "center", 
                             padding: "6px 12px",
                             borderRadius: "6px", // Keeps it clean and rounded
