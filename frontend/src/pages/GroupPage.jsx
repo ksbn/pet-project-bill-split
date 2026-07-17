@@ -391,6 +391,16 @@ export default function GroupPage() {
                   />
                 </div>
               ))}
+              {(() => {
+      const total = users.reduce((sum, u) => sum + Number(customSplits[u.id] || 0), 0);
+      const target = Number(expAmount) || 0;
+      const ok = Math.abs(total - target) < 0.01;
+      return (
+        <p style={{ fontSize: "0.85em", fontWeight: 600, color: ok ? "var(--primary)" : "#c00" }}>
+          Total: €{total.toFixed(2)} / €{target.toFixed(2)}
+        </p>
+      );
+    })()}
             </div>
           )}
           {expFormError && <p style={{ color: "#c00", margin: 0, fontSize: "0.9em" }}>{expFormError}</p>}
