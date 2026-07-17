@@ -424,7 +424,7 @@ export default function GroupPage() {
             gap: "6px",
             padding: "6px 12px",
             borderRadius: "6px",
-            fontSize: "0.8rem", // Slightly smaller size since it's a utility action
+            fontSize: "0.8rem", 
             fontWeight: "600",
             cursor: "pointer",
             transition: "all 0.2s ease",
@@ -442,7 +442,7 @@ export default function GroupPage() {
                 (c) => c.from_name === s.from && c.to_name === s.to && Number(c.amount) === Number(s.amount)
               );
               return (
-                <li key={i} className="glass" style={{ padding: "0.75rem 1rem", display: "flex", alignItems: "center", gap: "8px", opacity: isConfirmed ? 0.5 : 1 }}>
+                <li key={i} className="glass" style={{ padding: "0.75rem 1rem", display: "flex", flexWrap: "wrap", alignItems: "center", gap: "8px", opacity: isConfirmed ? 0.5 : 1 }}>
                   <div style={{ flex: 1 }}>
                     <strong>{s.from}</strong>
                     <span style={{ color: "var(--text-muted)" }}> owes </span>
@@ -467,7 +467,6 @@ export default function GroupPage() {
                             border: "1px solid #4F6EF7", 
                             textDecoration: "none", 
                             display: "inline-flex", 
-                            flexWrap: "wrap",
                             alignItems: "center", 
                             padding: "6px 12px",
                             borderRadius: "6px", // Keeps it clean and rounded
