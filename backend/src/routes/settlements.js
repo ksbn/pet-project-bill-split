@@ -1,5 +1,6 @@
 import { Router } from 'express'
 import { getSettlements, confirmSettlement, getConfirmedSettlements } from '../services/settlements.js'
+import { broadcast } from '../sse/store.js'
 
 const router = Router({ mergeParams: true })
 
@@ -26,6 +27,7 @@ router.post('/confirm', async (req, res) => {
       amount
     )
     res.status(201).json(confirmation)
+    broadcast(Number(req.params.id), 'settlement_confirmed', confirmation)
   } catch (err) {
     console.error(err)
     res.status(500).json({ error: 'Failed to confirm settlement' })
