@@ -1,9 +1,9 @@
 import { Router } from "express";
 import { addUserToGroup, getUsersByGroup } from "../services/users.js";
+import { broadcast } from '../sse/store.js'
 
 const router = Router({ mergeParams: true });
 
-/* POST /api/groups/:id/users */
 router.post("/", async (req, res) => {
   try {
     const { id: group_id } = req.params;
@@ -20,13 +20,13 @@ router.post("/", async (req, res) => {
       revolut_link
     });
     return res.status(201).json(newUser);
+    broadcast(Number(req.params.id), 'member_added', newUser)
   } catch (error) {
     console.error("Error creating user:", error);
     return res.status(500).json({ error: "Internal server error" });
   }
 });
 
-/* GET /api/groups/:id/users */
 router.get("/", async (req, res) => {
   try {
     const { id: group_id } = req.params;
