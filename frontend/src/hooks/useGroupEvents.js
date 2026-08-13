@@ -1,9 +1,9 @@
 import { useEffect } from 'react'
-import { getToken } from '../services/token'
 
 export function useGroupEvents(groupId, handlers) {
   useEffect(() => {
-    if (!groupId) return
+    // Guard against missing groupId or environments without EventSource (e.g. Node/Vitest)
+    if (!groupId || typeof window === 'undefined' || typeof EventSource === 'undefined') return
 
     const url = `/api/groups/${groupId}/events`
     const es = new EventSource(url)
