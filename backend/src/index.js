@@ -7,8 +7,6 @@ import settlementRoutes from './routes/settlements.js'
 import { donationRoutes } from './routes/donations.js'
 import { pool } from "./db/pool.js";
 import { requireAuth } from './middleware/auth.js'
-import eventsRouter from './routes/events.js'
-import { broadcast } from './sse/store.js'
 
 const app = express();
 const PORT = Number(process.env.PORT) || 3000;
@@ -30,6 +28,7 @@ app.options(/.*/, (_req, res) => {
   res.sendStatus(204);
 });
 
+// Never let the browser cache API responses — avoids stale data after DB resets
 app.use("/api", (_req, res, next) => {
   res.setHeader("Cache-Control", "no-store");
   next();
@@ -38,7 +37,6 @@ app.use("/api", (_req, res, next) => {
 // ── Public routes (no auth) ──────────────────────────────────────────────
 app.use('/api/auth', authRoutes)
 app.use('/api/donations', donationRoutes)
-app.use('/api/groups/:id/events', eventsRouter)
 
 // Public group viewing routes
 

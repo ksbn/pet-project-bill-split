@@ -1,6 +1,5 @@
 import { Router } from 'express'
 import { addExpense, getExpensesByGroup, recalculateSplits, deleteExpense } from '../services/expenses.js'
-import { broadcast } from '../sse/store.js'
 
 const router = Router({ mergeParams: true })
 
@@ -18,10 +17,19 @@ router.post('/', async (req, res) => {
       splits ?? null
     )
     res.status(201).json(expense)
-    broadcast(Number(req.params.id), 'expense_added', expense)
   } catch (err) {
     console.error(err)
     res.status(500).json({ error: err.message || 'Failed to add expense' })
+  }
+})
+
+router.get('/', async (req, res) => {
+  try {
+    const expenses = await getExpensesByGroup(Number(req.params.id))
+    res.json(expenses)
+  } catch (err) {
+    console.error(err)
+    res.status(500).json({ error: err.message || 'Failed to fetch expenses' })
   }
 })
 
@@ -39,7 +47,6 @@ router.post('/recalculate', async (req, res) => {
   try {
     const result = await recalculateSplits(Number(req.params.id))
     res.json(result)
-    broadcast(Number(req.params.id), 'splits_recalculated', {})
   } catch (err) {
     console.error(err)
     res.status(500).json({ error: 'Failed to recalculate splits' })
@@ -53,7 +60,6 @@ router.delete('/:expenseId', async (req, res) => {
       Number(req.params.id)
     )
     res.json(result)
-    broadcast(Number(req.params.id), 'expense_deleted', { id: Number(req.params.expenseId) })
   } catch (err) {
     console.error(err)
     res.status(404).json({ error: err.message || 'Failed to delete expense' })

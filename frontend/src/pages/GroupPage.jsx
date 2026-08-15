@@ -3,7 +3,6 @@ import { useParams, useLocation, useNavigate } from "react-router-dom";
 import { getToken } from "../services/token";
 import { getGroup, getGroupUsers, addUserToGroup, addExpense, getExpenses, getSettlements, recalculateSplits, deleteExpense, confirmSettlement, getConfirmedSettlements, getDonations } from "../services/api";
 import { validateMemberName, validateEmail, validateAmount } from "../utils/validate";
-import { useGroupEvents } from '../hooks/useGroupEvents'
 
 export default function GroupPage() {
   const { groupId } = useParams();
@@ -18,7 +17,6 @@ export default function GroupPage() {
   const [usersLoading, setUsersLoading] = useState(true);
   const [error, setError] = useState(null);
   const [confirmed, setConfirmed] = useState([]);
-  const [viewerCount, setViewerCount] = useState(0);
 
   // member form
   const [name, setName] = useState("");
@@ -193,38 +191,6 @@ export default function GroupPage() {
     }
   }
 
-  useGroupEvents(groupId, {
-  onViewers: (count) => setViewerCount(count),
-
-  onExpenseAdded: (expense) => {
-    setExpenses((prev) => {
-      // avoid duplicate if it was added by current user
-      if (prev.find(e => e.id === expense.id)) return prev
-      return [expense, ...prev]
-    })
-  },
-
-  onExpenseDeleted: (id) => {
-    setExpenses((prev) => prev.filter(e => e.id !== id))
-  },
-
-  onSplitsRecalculated: () => {
-    // refetch settlements
-    getSettlements(groupId).then(setSettlements).catch(() => {})
-  },
-
-  onMemberAdded: (user) => {
-    setUsers((prev) => {
-      if (prev.find(u => u.id === user.id)) return prev
-      return [...prev, user]
-    })
-  },
-
-  onSettlementConfirmed: (confirmation) => {
-    setConfirmed((prev) => [...prev, confirmation])
-  },
-})
-
   if (groupLoading) return <div className="page" style={{ paddingTop: "3rem" }}>Loading group...</div>;
   if (error) return <div className="page" style={{ paddingTop: "3rem", color: "#c00" }}>{error}</div>;
 
@@ -237,31 +203,6 @@ export default function GroupPage() {
       {/* Group info */}
       <div className="glass section" style={{ padding: "1.5rem" }}>
         <h1 style={{ fontSize: "1.75rem", fontWeight: "800", marginBottom: "0.5rem" }}>{group?.name ?? "Group"}</h1>
-        {viewerCount > 0 && (
-         <div style={{
-          display: "flex",
-          alignItems: "center",
-          flexWrap: "wrap",
-          gap: "10px",
-          marginBottom: "1rem",
-          background: "rgba(79,110,247,0.1)",
-          border: "1px solid rgba(79,110,247,0.2)",
-          borderRadius: "20px",
-          padding: "4px 12px",
-          fontSize: "0.85rem",
-          color: "#4F6EF7",
-          fontWeight: "500",
-        }}>
-          <span style={{
-            width: "8px", height: "8px",
-            borderRadius: "50%",
-            background: "#22c55e",
-            display: "inline-block",
-            boxShadow: "0 0 6px #22c55e",
-          }} />
-          {viewerCount} viewing
-        </div>
-      )}
         <div style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "1rem" }}>
           <span className="label" style={{ margin: 0 }}>Invite code:</span>
           <span className="badge">{group?.invite_code ?? "—"}</span>
@@ -293,8 +234,8 @@ export default function GroupPage() {
             target="_blank"
             rel="noopener noreferrer"
             style={{ 
-              background: "#cef6d2", 
-              color: "#308734", 
+              background: "#cef6d2", // Soft pastel green (cleaner than bright neon WhatsApp green)
+              color: "#308734", // Dark green text
               border: "1px solid rgba(46, 125, 50, 0.15)",
               textDecoration: "none",
               display: "inline-flex",
@@ -316,8 +257,8 @@ export default function GroupPage() {
             target="_blank"
             rel="noopener noreferrer"
             style={{ 
-              background: "#E1F5FE", 
-              color: "#0288D1", 
+              background: "#E1F5FE", // Soft pastel Telegram blue
+              color: "#0288D1", // Dark blue text
               border: "1px solid rgba(2, 136, 209, 0.15)",
               textDecoration: "none",
               display: "inline-flex",
